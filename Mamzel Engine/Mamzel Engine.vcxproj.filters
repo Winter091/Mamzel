@@ -66,17 +66,11 @@
     <ClCompile Include="src\renderer\Renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\core\Scene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\shaders\simple.vert" />
-    <None Include="res\shaders\bouncingMaskChannels.frag" />
-    <None Include="res\shaders\hsbSpinningCircle.frag" />
-    <None Include="res\shaders\hsbSpinningActualCircle.frag" />
-    <None Include="res\shaders\simple.frag" />
-    <None Include="res\shaders\TableauPainting.frag" />
-    <None Include="res\shaders\vertexColored.vert" />
-    <None Include="res\shaders\vertexColored.frag" />
-    <None Include="res\shaders\mandelbrotSet.frag" />
     <None Include="src\vendor\glm\ext\matrix_clip_space.inl">
       <Filter>Header Files</Filter>
     </None>
@@ -379,6 +373,17 @@
     </None>
     <None Include="res\shaders\flatColorShader.vert" />
     <None Include="res\shaders\flatColorShader.frag" />
+    <None Include="res\shaders\phongLightning.frag" />
+    <None Include="res\shaders\phongLightning.vert" />
+    <None Include="res\shaders\fun\bouncingMaskChannels.frag" />
+    <None Include="res\shaders\fun\vertexColored.frag" />
+    <None Include="res\shaders\fun\vertexColored.vert" />
+    <None Include="res\shaders\fun\TableauPainting.frag" />
+    <None Include="res\shaders\fun\simple.vert" />
+    <None Include="res\shaders\fun\simple.frag" />
+    <None Include="res\shaders\fun\mandelbrotSet.frag" />
+    <None Include="res\shaders\fun\hsbSpinningCircle.frag" />
+    <None Include="res\shaders\fun\hsbSpinningActualCircle.frag" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\renderer\VertexBuffer.h">
@@ -1084,6 +1089,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\renderer\Renderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\Scene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

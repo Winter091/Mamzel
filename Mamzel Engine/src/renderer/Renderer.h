@@ -7,32 +7,42 @@
 #include "IndexBuffer.h"
 #include "VertexArray.h"
 #include "Shader.h"
+#include "../core/Scene.h"
 
 struct rendererData_t
 {
-	std::unique_ptr<VertexBuffer> triangleVB;
-	std::unique_ptr<IndexBuffer> triangleIB;
-	std::unique_ptr<VertexArray> triangleVA;
+	std::shared_ptr<VertexBuffer> triangleVB;
+	std::shared_ptr<IndexBuffer> triangleIB;
+	std::shared_ptr<VertexArray> triangleVA;
 
-	std::unique_ptr<VertexBuffer> quadVB;
-	std::unique_ptr<IndexBuffer> quadIB;
-	std::unique_ptr<VertexArray> quadVA;
+	std::shared_ptr<VertexBuffer> quadVB;
+	std::shared_ptr<IndexBuffer> quadIB;
+	std::shared_ptr<VertexArray> quadVA;
 
-	std::unique_ptr<Shader> flatColorShader;
+	std::shared_ptr<VertexBuffer> cubeVB;
+	std::shared_ptr<VertexArray> cubeVA;
+
+	std::shared_ptr<Shader> flatColorShader;
+	std::shared_ptr<Shader> phongLightningShader;
 };
 
 class Renderer
 {
 private:
-	glm::mat4 m_CameraMatrixVP;
+	std::shared_ptr<Scene> m_Scene;
+	
 	static rendererData_t s_RenderData;
+
+private:
+	void BindFlatColorShader(const glm::mat4& transform, const glm::vec4& color);
+	void BindPhongLightningShader(const glm::mat4& model, const glm::vec4& color);
 
 public:
 
 	Renderer();
 	~Renderer();
 
-	void BeginScene(const glm::mat4& cameraMatrixMP);
+	void BeginScene(const Scene& scene);
 	void EndScene();
 
 	void SetClearColor(float r, float g, float b) const;
@@ -40,9 +50,12 @@ public:
 
 	void DrawUserShape(const std::unique_ptr<VertexArray>& va, const std::unique_ptr<Shader>& shader, const glm::mat4& modelMatrix);
 
-	void DrawTriangle(const glm::vec3& position, const glm::vec3& size = glm::vec3(1.0f), const glm::vec4& color = glm::vec4(1.0f));
+	void DrawTriangle(const glm::vec3& position, const glm::vec4& rotation, const glm::vec3& scale = glm::vec3(1.0f), const glm::vec4& color = glm::vec4(1.0f));
 	void DrawTriangle(const glm::mat4& transform, const glm::vec4& color = glm::vec4(1.0f));
 
-	void DrawQuad(const glm::vec3& position, const glm::vec3& size = glm::vec3(1.0f), const glm::vec4& color = glm::vec4(1.0f));
+	void DrawQuad(const glm::vec3& position, const glm::vec4& rotation, const glm::vec3& scale = glm::vec3(1.0f), const glm::vec4& color = glm::vec4(1.0f));
 	void DrawQuad(const glm::mat4& transform, const glm::vec4& color = glm::vec4(1.0f));
+
+	void DrawCube(const glm::vec3& position, const glm::vec4& rotation, const glm::vec3& scale = glm::vec3(1.0f), const glm::vec4& color = glm::vec4(1.0f));
+	void DrawCube(const glm::mat4& transform, const glm::vec4& color = glm::vec4(1.0f));
 };

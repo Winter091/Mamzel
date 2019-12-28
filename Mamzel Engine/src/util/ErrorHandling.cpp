@@ -3,6 +3,7 @@
 #include "GL/glew.h"
 
 #include <iostream>
+#include <filesystem>
 
 void clearErrors()
 {
@@ -13,6 +14,7 @@ void printErrors(const char* funcName, const char* fileName, int line)
 {
 	while (int error = glGetError())
 	{
-		std::cout << "[OpenGL Error] (" << error << "): " << fileName << ":" << line << ":" << funcName << std::endl;
+		const GLubyte* err = gluErrorString(error);
+		std::cout << "[OpenGL Error] (" << err << "): " << std::filesystem::path(fileName).filename() << ":" << line << ":" << funcName << std::endl;
 	}
 }

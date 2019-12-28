@@ -9,7 +9,32 @@ VertexArray::VertexArray()
 {
 }
 
-VertexArray::VertexArray(std::unique_ptr<VertexBuffer>& vb, std::unique_ptr<IndexBuffer>& ib, const VertexBufferLayout& layout)
+VertexArray::VertexArray(std::shared_ptr<VertexBuffer>& vb, const VertexBufferLayout& layout)
+{
+	HANDLE_ERROR(glGenVertexArrays(1, &this->m_VertexArrayID));
+
+	Bind();
+	vb->Bind();
+
+	m_IndexBufferCount = -1;
+
+	const auto& elements = layout.GetElements();
+	unsigned int offset = 0;
+
+	for (unsigned int i = 0; i < elements.size(); i++)
+	{
+		const auto& e = elements[i];
+
+		HANDLE_ERROR(glVertexAttribPointer(i, e.count, e.type, e.normalized, layout.GetStride(), (void*)offset));
+		HANDLE_ERROR(glEnableVertexAttribArray(i));
+
+		offset += e.count * VertexBufferElement::GetTypeSize(e.type);
+	}
+
+	Unbind();
+}
+
+VertexArray::VertexArray(std::shared_ptr<VertexBuffer>& vb, std::shared_ptr<IndexBuffer>& ib, const VertexBufferLayout& layout)
 {
 	HANDLE_ERROR(glGenVertexArrays(1, &this->m_VertexArrayID));
 
@@ -69,7 +94,7 @@ void VertexArray::AddIndexBuffer(const IndexBuffer& ib)
 	Unbind();
 }
 
-void VertexArray::AddVertexBuffer(std::unique_ptr<VertexBuffer>& vb, const VertexBufferLayout& layout)
+void VertexArray::AddVertexBuffer(std::shared_ptr<VertexBuffer>& vb, const VertexBufferLayout& layout)
 {
 	Bind();
 	vb->Bind();
@@ -90,7 +115,7 @@ void VertexArray::AddVertexBuffer(std::unique_ptr<VertexBuffer>& vb, const Verte
 	Unbind();
 }
 
-void VertexArray::AddIndexBuffer(std::unique_ptr<IndexBuffer>& ib)
+void VertexArray::AddIndexBuffer(std::shared_ptr<IndexBuffer>& ib)
 {
 	Bind();
 	ib->Bind();

@@ -14,14 +14,15 @@ private:
 
 public:
 	VertexArray();
-	VertexArray(std::unique_ptr<VertexBuffer>& vb, std::unique_ptr<IndexBuffer>& ib, const VertexBufferLayout& layout);
+	VertexArray(std::shared_ptr<VertexBuffer>& vb, const VertexBufferLayout& layout);
+	VertexArray(std::shared_ptr<VertexBuffer>& vb, std::shared_ptr<IndexBuffer>& ib, const VertexBufferLayout& layout);
 	~VertexArray();
 
 	void AddVertexBuffer(const VertexBuffer& vb, const VertexBufferLayout& layout);
 	void AddIndexBuffer(const IndexBuffer& ib);
 
-	void AddVertexBuffer(std::unique_ptr<VertexBuffer>& vb, const VertexBufferLayout& layout);
-	void AddIndexBuffer(std::unique_ptr<IndexBuffer>& ib);
+	void AddVertexBuffer(std::shared_ptr<VertexBuffer>& vb, const VertexBufferLayout& layout);
+	void AddIndexBuffer(std::shared_ptr<IndexBuffer>& ib);
 
 	inline unsigned int GetIndexCount() const { return m_IndexBufferCount; }
 
