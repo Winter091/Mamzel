@@ -19,14 +19,21 @@ void Renderer::BindPhongLightningShader(const glm::mat4& transform, const glm::v
 	s_RenderData.phongLightningShader->SetUniform("u_MatrixMVP", m_Scene->GetCamera()->GetMatrixVP() * transform);
 
 	s_RenderData.phongLightningShader->SetUniform("u_ObjectTransform", transform);
-	s_RenderData.phongLightningShader->SetUniform("u_LightPos", m_Scene->GetLightSources()[0]);
+	s_RenderData.phongLightningShader->SetUniform("u_CameraPos", m_Scene->GetCamera()->GetPosition());
+
+	s_RenderData.phongLightningShader->SetUniform("u_LightCount", (int)m_Scene->GetLightSources().size());
+	for (int i = 0; i < m_Scene->GetLightSources().size(); i++)
+	{
+		std::string name = "u_LightPositions[" + std::to_string(i) + "]";
+		s_RenderData.phongLightningShader->SetUniform(name.c_str(), m_Scene->GetLightSources()[i]);
+	}
 
 	s_RenderData.phongLightningShader->SetUniform("u_ObjectColor", color.x, color.y, color.z);
 	s_RenderData.phongLightningShader->SetUniform("u_LightColor", 1.0f, 1.0f, 1.0f);
 
 	s_RenderData.phongLightningShader->SetUniform("u_AmbientStrength", 0.1f);
-	//s_RenderData.phongLightningShader->setUniform("u_DiffuseStrength", 1.0f);
-	//s_RenderData.phongLightningShader->setUniform("u_SpecularStrength", 1.0f);
+	s_RenderData.phongLightningShader->SetUniform("u_DiffuseStrength", 1.0f);
+	s_RenderData.phongLightningShader->SetUniform("u_SpecularStrength", 0.5f);
 }
 
 Renderer::Renderer()

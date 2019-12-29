@@ -36,4 +36,5 @@ public:
 	void Update();
 
 	glm::mat4& GetMatrixVP();
+	inline const glm::vec3& GetPosition() const { return m_Position; }
 };

@@ -18,10 +18,6 @@ using namespace std;
 
 Application::~Application()
 {
-	m_VertexBuffer = nullptr;
-	m_IndexBuffer = nullptr;
-	m_VertexArray = nullptr;
-	m_Shader = nullptr;
 	m_Renderer = nullptr;
 	m_Camera = nullptr;
 	glfwDestroyWindow(m_Window);
@@ -76,29 +72,6 @@ Application::Application()
 	ImGui_ImplGlfw_InitForOpenGL(m_Window, true);
 	ImGui_ImplOpenGL3_Init("#version 440");
 
-	float vertices[] = {
-		-0.5f, -0.5f,  0.0f,     0.0f, 0.0f,
-		-0.5f,  0.5f,  0.0f,     0.0f, 1.0f,
-		 0.5f,  0.5f,  0.0f,     1.0f, 1.0f,
-		 0.5f, -0.5f,  0.0f,     1.0f, 0.0f
-	};
-
-	unsigned int indices[] = {
-		0, 1, 2, 
-		2, 3, 0
-	};
-
-	m_VertexBuffer = std::make_shared<VertexBuffer>(vertices, sizeof(vertices));
-	m_IndexBuffer = std::make_shared<IndexBuffer>(indices, sizeof(indices));
-	VertexBufferLayout layout = {
-		{ GL_FLOAT, 3, "a_Position" },
-		{ GL_FLOAT, 2, "a_Coord" }
-	};
-
-	m_VertexArray = std::make_shared<VertexArray>(m_VertexBuffer, m_IndexBuffer, layout);
-
-	//m_Shader = std::make_shared<Shader>("res/shaders/vertexColored.vert", "res/shaders/mandelbrotSet.frag");
-
 	m_Camera = std::make_shared<PerspectiveCamera>(windowWidth, windowHeight, 45.0f);
 	m_Camera->SetPosition(glm::vec3(0.0f, 0.0f, 4.0f));
 	m_Camera->SetMoveSpeedAndMouseSens(0.05f, 0.8f);
@@ -128,15 +101,17 @@ void Application::Run()
 
 		m_Camera->Update();
 
-		static glm::vec3 lampPosition(-2.0f, 2.0f, 3.0f);
+		static glm::vec3 lamp1Position(-2.0f, 2.0f, 3.0f);
+		static glm::vec3 lamp2Position(2.0f, -2.0f, -3.0f);
 
 		m_Renderer->Clear();
 
 		Scene scene;
-
 		scene.SetCamera(m_Camera);
 		scene.SetLightning(LightMode::PHONG_LIGHTNING);
-		scene.AddLightSource(lampPosition);
+		scene.AddLightSource(lamp1Position);
+		scene.AddLightSource(lamp2Position);
+
 		m_Renderer->BeginScene(scene);
 		{
 			glm::mat4 cubeMatrix = glm::rotate(glm::mat4(1.0), time, glm::vec3(1.0));
@@ -147,7 +122,8 @@ void Application::Run()
 		scene.SetLightning(LightMode::FLAT_COLOR);
 		m_Renderer->BeginScene(scene);
 		{
-			m_Renderer->DrawCube(lampPosition, { 1.0, 1.0, 1.0, 0.0 }, { 0.8, 0.8, 0.8 });
+			m_Renderer->DrawCube(lamp1Position, { 1.0, 1.0, 1.0, 0.0 }, { 0.8, 0.8, 0.8 });
+			m_Renderer->DrawCube(lamp2Position, { 1.0, 1.0, 1.0, 0.0 }, { 0.8, 0.8, 0.8 });
 		}
 		m_Renderer->EndScene();
 

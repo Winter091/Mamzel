@@ -26,6 +26,8 @@ public:
 	void Bind() const;
 	void Unbind() const;
 
+	void SetUniform(const char* name, int i1);
+
 	void SetUniform(const char* name, float f1);
 	void SetUniform(const char* name, float f1, float f2);
 	void SetUniform(const char* name, float f1, float f2, float f3);

@@ -98,6 +98,16 @@ void Shader::Unbind() const
 	HANDLE_ERROR(glUseProgram(0));
 }
 
+void Shader::SetUniform(const char* name, int i1)
+{
+	int location = this->getUnifromLocation(name);
+
+	if (location == -1)
+		std::cout << "Warning! [" << name << "] uniform location is -1!\n";
+	else
+		HANDLE_ERROR(glUniform1i(location, i1));
+}
+
 void Shader::SetUniform(const char* name, float f1) 
 {
 	int location = this->getUnifromLocation(name);
