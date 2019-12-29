@@ -14,6 +14,10 @@ uniform int u_LightCount;
 in vec3 v_ObjectPos;
 in vec3 v_Normal;
 
+uniform int u_UseTexture;
+uniform sampler2D u_TextureSampler;
+in vec2 v_TexCoord;
+
 out vec4 out_color;
 
 void main()
@@ -39,5 +43,9 @@ void main()
 	}
 	
 	result *= u_ObjectColor;
-	out_color = vec4(result, 1.0);
+
+	if (u_UseTexture == 0)
+		out_color = vec4(result, 1.0);
+	else
+		out_color = texture(u_TextureSampler, v_TexCoord) * vec4(result, 1.0);
 }

@@ -10,6 +10,8 @@ private:
 	void DrawOpenGL();
 	void DrawGui();
 
+	std::shared_ptr<Texture> m_LampTexture;
+
 public:
 	SandboxApp();
 	~SandboxApp();

@@ -7,6 +7,7 @@
 #include "IndexBuffer.h"
 #include "VertexArray.h"
 #include "Shader.h"
+#include "Texture.h"
 #include "../core/Scene.h"
 
 struct rendererData_t
@@ -34,8 +35,8 @@ private:
 	static rendererData_t s_RenderData;
 
 private:
-	void BindFlatColorShader(const glm::mat4& transform, const glm::vec4& color);
-	void BindPhongLightningShader(const glm::mat4& model, const glm::vec4& color);
+	void BindFlatColorShader(const glm::mat4& transform, const glm::vec4& color, bool useTexture);
+	void BindPhongLightningShader(const glm::mat4& model, const glm::vec4& color, bool useTexture);
 
 public:
 
@@ -52,10 +53,17 @@ public:
 
 	void DrawTriangle(const glm::vec3& position, const glm::vec4& rotation, const glm::vec3& scale = glm::vec3(1.0f), const glm::vec4& color = glm::vec4(1.0f));
 	void DrawTriangle(const glm::mat4& transform, const glm::vec4& color = glm::vec4(1.0f));
+	void DrawTriangle(const glm::vec3& position, const glm::vec4& rotation, const glm::vec3& scale, const std::shared_ptr<Texture> texture, const glm::vec4& color = glm::vec4(1.0f));
+	void DrawTriangle(const glm::mat4& transform, std::shared_ptr<Texture> texture, const glm::vec4& color = glm::vec4(1.0f));
 
 	void DrawQuad(const glm::vec3& position, const glm::vec4& rotation, const glm::vec3& scale = glm::vec3(1.0f), const glm::vec4& color = glm::vec4(1.0f));
 	void DrawQuad(const glm::mat4& transform, const glm::vec4& color = glm::vec4(1.0f));
+	void DrawQuad(const glm::vec3& position, const glm::vec4& rotation, const glm::vec3& scale, const std::shared_ptr<Texture> texture, const glm::vec4& color = glm::vec4(1.0f));
+	void DrawQuad(const glm::mat4& transform, std::shared_ptr<Texture> texture, const glm::vec4& color = glm::vec4(1.0f));
 
 	void DrawCube(const glm::vec3& position, const glm::vec4& rotation, const glm::vec3& scale = glm::vec3(1.0f), const glm::vec4& color = glm::vec4(1.0f));
 	void DrawCube(const glm::mat4& transform, const glm::vec4& color = glm::vec4(1.0f));
+	void DrawCube(const glm::vec3& position, const glm::vec4& rotation, const glm::vec3& scale, const std::shared_ptr<Texture> texture, const glm::vec4& color = glm::vec4(1.0f));
+	void DrawCube(const glm::mat4& transform, std::shared_ptr<Texture> texture, const glm::vec4& color = glm::vec4(1.0f));
+
 };
