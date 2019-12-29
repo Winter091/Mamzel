@@ -19,9 +19,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Application.cpp" />
+    <ClCompile Include="src\core\Application.cpp" />
     <ClCompile Include="src\core\Scene.cpp" />
     <ClCompile Include="src\renderer\Renderer.cpp" />
+    <ClCompile Include="src\SandboxApp.cpp" />
     <ClCompile Include="src\util\ErrorHandling.cpp" />
     <ClCompile Include="src\util\Input.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -154,9 +155,10 @@
     <None Include="src\vendor\glm\gtx\wrap.inl" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Application.h" />
+    <ClInclude Include="src\core\Application.h" />
     <ClInclude Include="src\core\Scene.h" />
     <ClInclude Include="src\renderer\Renderer.h" />
+    <ClInclude Include="src\SandboxApp.h" />
     <ClInclude Include="src\util\ErrorHandling.h" />
     <ClInclude Include="src\util\Input.h" />
     <ClInclude Include="src\renderer\PerspectiveCamera.h" />

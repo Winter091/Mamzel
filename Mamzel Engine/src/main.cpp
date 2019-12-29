@@ -1,8 +1,8 @@
-#include "Application.h"
+#include "SandboxApp.h"
 
 int main()
-{
-	Application* app = new Application();
+{	
+	SandboxApp* app = new SandboxApp;
 	app->Run();
 	delete app;
 }
