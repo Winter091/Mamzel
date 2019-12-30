@@ -7,12 +7,14 @@
 #include <iostream>
 
 Texture::Texture()
-	: m_TextureID(0)
+	: m_TextureID(0), m_Scale(0.0f)
 {
 }
 
 Texture::Texture(const char* path)
 {
+	m_Scale = 1.0f;
+	
 	int w, h, channels;
 	stbi_set_flip_vertically_on_load(1);
 	unsigned char* data = stbi_load(path, &w, &h, &channels, 0);
@@ -48,6 +50,11 @@ void Texture::SetWrapAndFilterMode(int wrapMode, int filterMode)
 	HANDLE_ERROR(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapMode));
 	HANDLE_ERROR(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filterMode));
 	HANDLE_ERROR(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filterMode));
+}
+
+void Texture::SetScale(float scale)
+{
+	m_Scale = scale;
 }
 
 void Texture::Bind()

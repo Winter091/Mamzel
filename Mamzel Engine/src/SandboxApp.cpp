@@ -1,15 +1,26 @@
 #include "SandboxApp.h"
 
 SandboxApp::SandboxApp()
-	: Application(1600, 900)
+	: Application(1600, 900, true)
 {
 	m_Camera->SetPosition(glm::vec3(0.0f, 0.0f, 4.0f));
 	m_Camera->SetMoveSpeedAndMouseSens(0.05f, 0.8f);
 
-	m_Renderer->SetClearColor(0.15f, 0.15f, 0.18f);
+	m_Renderer->SetClearColor(0.0f, 0.0f, 0.0f);
 
-	m_LampTexture = std::make_shared<Texture>("res/textures/redstone_lamp.png");
-	m_LampTexture->SetWrapAndFilterMode(GL_REPEAT, GL_NEAREST);
+	m_CobblestoneTexture = std::make_shared<Texture>("res/textures/cobblestone.png");
+	m_CobblestoneTexture->SetWrapAndFilterMode(GL_REPEAT, GL_NEAREST);
+	m_CobblestoneTexture->SetScale(100.0f);
+
+	m_OakPlanksTexture = std::make_shared<Texture>("res/textures/planks_oak.png");
+	m_GlassTexture = std::make_shared<Texture>("res/textures/glass.png");
+
+	m_DoorLowerTexture = std::make_shared<Texture>("res/textures/door_wood_lower.png");
+	m_DoorUpperTexture = std::make_shared<Texture>("res/textures/door_wood_upper.png");
+
+	m_RedstoneLampTexture = std::make_shared<Texture>("res/textures/redstone_lamp.png");
+
+	m_MoonTexture = std::make_shared<Texture>("res/textures/moon.png");
 }
 
 SandboxApp::~SandboxApp()
@@ -39,24 +50,48 @@ void SandboxApp::DrawOpenGL()
 	scene.SetLightning(LightMode::PHONG_LIGHTNING);
 	m_Renderer->BeginScene(scene);
 	{
-		glm::mat4 triangleMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(-2.0f, 0.0f, 0.0f));
-		glm::mat4 quadMatrix     = glm::translate(glm::mat4(1.0f), glm::vec3( 0.0f, 0.0f, 0.0f));
-		glm::mat4 cubeMatrix     = glm::translate(glm::mat4(1.0f), glm::vec3( 2.0f, 0.0f, 0.0f));
+		// Floor
+		m_Renderer->DrawQuad({ 0.0, -0.5, 0.0 }, { 1.0, 0.0, 0.0, 90.0 }, glm::vec3(100.0f), m_CobblestoneTexture);
 
-		m_Renderer->DrawTriangle(triangleMatrix, {0.2, 0.3, 0.8, 1.0});
-		m_Renderer->DrawQuad(quadMatrix, { 0.2, 0.3, 0.8, 1.0 });
-		m_Renderer->DrawCube(cubeMatrix, { 0.2, 0.3, 0.8, 1.0 });
+		// Layer 1
+		for (int x = -1; x <= 1; x++)
+			for (int y = 0; y <= 2; y++)
+				if (!(x == 0 && y == 1))
+					m_Renderer->DrawCube({ x, y, -1.0 }, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), m_OakPlanksTexture);
+
+		// Layer 2
+		for (int x = -1; x <= 1; x++)
+			m_Renderer->DrawCube({ x, 2.0, 0.0 }, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), m_OakPlanksTexture);
+
+		m_Renderer->DrawCube({ -1.0, 0.0, 0.0 }, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), m_OakPlanksTexture);
+		m_Renderer->DrawCube({  1.0, 0.0, 0.0 }, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), m_OakPlanksTexture);
+
+		// Layer 3
+		for (int x = -1; x <= 1; x++)
+			for (int y = 0; y <= 2; y++)
+				if (!(x == 0 && y == 1) && !(x == 0 && y == 0))
+					m_Renderer->DrawCube({ x, y, 1.0 }, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), m_OakPlanksTexture);
+
+		// Windows
+		m_Renderer->DrawCube({  0.0, 1.0, -1.0 }, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), m_GlassTexture);
+		m_Renderer->DrawCube({ -1.0, 1.0,  0.0 }, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), m_GlassTexture);
+		m_Renderer->DrawCube({  1.0, 1.0,  0.0 }, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), m_GlassTexture);
+
+		// Door
+		m_Renderer->DrawQuad({ 0.0, 1.0,  1.5 }, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), m_DoorUpperTexture);
+		m_Renderer->DrawQuad({ 0.0, 0.0,  1.5 }, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), m_DoorLowerTexture);
 	}
 	m_Renderer->EndScene();
 
 	scene.SetLightning(LightMode::FLAT_COLOR);
 	m_Renderer->BeginScene(scene);
-	{
-		glm::mat4 lamp1Matrix = glm::translate(glm::mat4(1.0f), lamp1Position);
-		glm::mat4 lamp2Matrix = glm::translate(glm::mat4(1.0f), lamp2Position);
-		
-		m_Renderer->DrawCube(lamp1Matrix, m_LampTexture);
-		m_Renderer->DrawCube(lamp2Matrix, m_LampTexture);
+	{	
+		// Lamps
+		m_Renderer->DrawCube(lamp1Position, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), m_RedstoneLampTexture);
+		m_Renderer->DrawCube(lamp2Position, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), m_RedstoneLampTexture);
+
+		// Moon
+		m_Renderer->DrawQuad({-10.0, 20.0, -100.0}, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(20.0f), m_MoonTexture);
 	}
 	m_Renderer->EndScene();
 }

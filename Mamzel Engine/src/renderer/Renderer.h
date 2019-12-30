@@ -35,8 +35,8 @@ private:
 	static rendererData_t s_RenderData;
 
 private:
-	void BindFlatColorShader(const glm::mat4& transform, const glm::vec4& color, bool useTexture);
-	void BindPhongLightningShader(const glm::mat4& model, const glm::vec4& color, bool useTexture);
+	void BindFlatColorShader(const glm::mat4& transform, const glm::vec4& color, bool useTexture, float textureRepeatCount);
+	void BindPhongLightningShader(const glm::mat4& transform, const glm::vec4& color, bool useTexture, float textureRepeatCount);
 
 public:
 
@@ -49,7 +49,8 @@ public:
 	void SetClearColor(float r, float g, float b) const;
 	void Clear();
 
-	void DrawUserShape(const std::unique_ptr<VertexArray>& va, const std::unique_ptr<Shader>& shader, const glm::mat4& modelMatrix);
+	void DrawCustomShape(const std::unique_ptr<VertexArray>& va, const std::unique_ptr<Shader>& shader, const glm::mat4& modelMatrix);
+	void DrawCustomShape(const std::unique_ptr<VertexArray>& va, const std::unique_ptr<Shader>& shader, const std::shared_ptr<Texture> texture, const glm::mat4& modelMatrix);
 
 	void DrawTriangle(const glm::vec3& position, const glm::vec4& rotation, const glm::vec3& scale = glm::vec3(1.0f), const glm::vec4& color = glm::vec4(1.0f));
 	void DrawTriangle(const glm::mat4& transform, const glm::vec4& color = glm::vec4(1.0f));

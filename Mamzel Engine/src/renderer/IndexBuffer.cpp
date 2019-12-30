@@ -6,7 +6,7 @@
 #include <iostream>
 
 IndexBuffer::IndexBuffer()
-	:m_BufferID(-1), m_IndexCount(0)
+	:m_BufferID(-1), m_IndexCount(-1)
 {
 }
 

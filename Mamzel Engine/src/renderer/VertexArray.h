@@ -10,7 +10,8 @@ class VertexArray
 {
 private:
 	unsigned int m_VertexArrayID;
-	unsigned int m_IndexBufferCount;
+	int m_VertexCount;
+	int m_IndexCount;
 
 public:
 	VertexArray();
@@ -24,7 +25,8 @@ public:
 	void AddVertexBuffer(std::shared_ptr<VertexBuffer>& vb, const VertexBufferLayout& layout);
 	void AddIndexBuffer(std::shared_ptr<IndexBuffer>& ib);
 
-	inline unsigned int GetIndexCount() const { return m_IndexBufferCount; }
+	inline int GetVertexCount() const { return m_VertexCount; }
+	inline int GetIndexCount() const { return m_IndexCount; }
 
 	void Bind() const;
 	void Unbind() const;

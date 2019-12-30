@@ -399,6 +399,10 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\textures\awesome_face.png" />
+    <Image Include="res\textures\bricks.png" />
+    <Image Include="res\textures\cobblestone.png" />
+    <Image Include="res\textures\metal_floor.jpg" />
+    <Image Include="res\textures\metal_floor.png" />
     <Image Include="res\textures\redstone_lamp.png" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

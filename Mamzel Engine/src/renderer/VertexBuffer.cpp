@@ -4,7 +4,7 @@
 #include "GL/glew.h"
 
 VertexBuffer::VertexBuffer()
-	:m_BufferID(-1)
+	:m_BufferID(-1), m_ElementCount(-1)
 {
 }
 
@@ -13,6 +13,8 @@ VertexBuffer::VertexBuffer(const void* data, unsigned int size)
 	HANDLE_ERROR(glGenBuffers(1, &this->m_BufferID));
 	this->Bind();
 	HANDLE_ERROR(glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW));
+
+	m_ElementCount = size / sizeof(float);
 }
 
 VertexBuffer::~VertexBuffer()

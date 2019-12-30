@@ -38,11 +38,11 @@ protected:
 
 private:
 
-	GLFWwindow* InitWindow(int w, int h);
+	GLFWwindow* InitWindow(int w, int h, bool useVSync);
 
 public:
 
-	Application(unsigned int windowWidth, unsigned int windowHeight);
+	Application(unsigned int windowWidth, unsigned int windowHeight, bool useVSync);
 	~Application();
 
 	void Run();

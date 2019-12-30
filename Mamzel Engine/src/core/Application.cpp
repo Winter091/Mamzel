@@ -13,7 +13,7 @@ Application::~Application()
 	glfwDestroyWindow(m_Window);
 }
 
-GLFWwindow* Application::InitWindow(int w, int h)
+GLFWwindow* Application::InitWindow(int w, int h, bool useVSync)
 {
 	if (!glfwInit())
 	{
@@ -30,7 +30,11 @@ GLFWwindow* Application::InitWindow(int w, int h)
 
 	glfwSetWindowPos(window, 100, 100);
 	glfwMakeContextCurrent(window);
-	glfwSwapInterval(1);
+
+	if (useVSync)
+		glfwSwapInterval(1);
+	else
+		glfwSwapInterval(0);
 
 	if (glewInit() != GLEW_OK)
 	{
@@ -46,9 +50,9 @@ GLFWwindow* Application::InitWindow(int w, int h)
 	return window;
 }
 
-Application::Application(unsigned int windowWidth, unsigned int windowHeight)
+Application::Application(unsigned int windowWidth, unsigned int windowHeight, bool useVSync)
 {
-	m_Window = InitWindow(windowWidth, windowHeight);
+	m_Window = InitWindow(windowWidth, windowHeight, useVSync);
 	Input::SetWindow(m_Window);
 
 	m_StartTime = std::chrono::high_resolution_clock::now();

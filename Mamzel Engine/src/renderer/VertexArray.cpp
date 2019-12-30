@@ -5,7 +5,7 @@
 
 
 VertexArray::VertexArray()
-	: m_VertexArrayID(-1), m_IndexBufferCount(0)
+	: m_VertexArrayID(-1), m_VertexCount(-1), m_IndexCount(-1)
 {
 }
 
@@ -16,7 +16,8 @@ VertexArray::VertexArray(std::shared_ptr<VertexBuffer>& vb, const VertexBufferLa
 	Bind();
 	vb->Bind();
 
-	m_IndexBufferCount = -1;
+	m_VertexCount = vb->GetCount() / (layout.GetStride() / sizeof(float));
+	m_IndexCount = -1;
 
 	const auto& elements = layout.GetElements();
 	unsigned int offset = 0;
@@ -42,7 +43,8 @@ VertexArray::VertexArray(std::shared_ptr<VertexBuffer>& vb, std::shared_ptr<Inde
 	vb->Bind();
 	ib->Bind();
 
-	m_IndexBufferCount = ib->GetCount();
+	m_VertexCount = vb->GetCount() / (layout.GetStride() / sizeof(float));
+	m_IndexCount = ib->GetCount();
 
 	const auto& elements = layout.GetElements();
 	unsigned int offset = 0;
@@ -90,7 +92,7 @@ void VertexArray::AddIndexBuffer(const IndexBuffer& ib)
 {
 	Bind();
 	ib.Bind();
-	m_IndexBufferCount = ib.GetCount();
+	m_IndexCount = ib.GetCount();
 	Unbind();
 }
 
@@ -119,7 +121,7 @@ void VertexArray::AddIndexBuffer(std::shared_ptr<IndexBuffer>& ib)
 {
 	Bind();
 	ib->Bind();
-	m_IndexBufferCount = ib->GetCount();
+	m_IndexCount = ib->GetCount();
 	Unbind();
 }
 
