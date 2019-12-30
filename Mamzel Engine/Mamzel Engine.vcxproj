@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="src\core\Application.cpp" />
     <ClCompile Include="src\core\Scene.cpp" />
+    <ClCompile Include="src\core\TextureLibrary.cpp" />
     <ClCompile Include="src\renderer\Renderer.cpp" />
     <ClCompile Include="src\renderer\Texture.cpp" />
     <ClCompile Include="src\SandboxApp.cpp" />
@@ -159,6 +160,7 @@
   <ItemGroup>
     <ClInclude Include="src\core\Application.h" />
     <ClInclude Include="src\core\Scene.h" />
+    <ClInclude Include="src\core\TextureLibrary.h" />
     <ClInclude Include="src\renderer\Renderer.h" />
     <ClInclude Include="src\renderer\Texture.h" />
     <ClInclude Include="src\SandboxApp.h" />
@@ -401,8 +403,14 @@
     <Image Include="res\textures\awesome_face.png" />
     <Image Include="res\textures\bricks.png" />
     <Image Include="res\textures\cobblestone.png" />
+    <Image Include="res\textures\door_wood_lower.png" />
+    <Image Include="res\textures\door_wood_upper.png" />
+    <Image Include="res\textures\glass.png" />
     <Image Include="res\textures\metal_floor.jpg" />
     <Image Include="res\textures\metal_floor.png" />
+    <Image Include="res\textures\moon.png" />
+    <Image Include="res\textures\moon_phases.png" />
+    <Image Include="res\textures\planks_oak.png" />
     <Image Include="res\textures\redstone_lamp.png" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

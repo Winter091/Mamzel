@@ -9,7 +9,8 @@
 Application::~Application()
 {
 	m_Camera = nullptr;
-	m_Renderer = nullptr;
+	Renderer::Free();
+	TextureLibrary::Free();
 	glfwDestroyWindow(m_Window);
 }
 
@@ -53,17 +54,17 @@ GLFWwindow* Application::InitWindow(int w, int h, bool useVSync)
 Application::Application(unsigned int windowWidth, unsigned int windowHeight, bool useVSync)
 {
 	m_Window = InitWindow(windowWidth, windowHeight, useVSync);
-	Input::SetWindow(m_Window);
-
 	m_StartTime = std::chrono::high_resolution_clock::now();
+	m_Camera = std::make_shared<PerspectiveCamera>(windowWidth, windowHeight, 45.0f);
+
+	Input::SetWindow(m_Window);
+	Renderer::Init();
 
 	ImGui::CreateContext();
 	ImGui::StyleColorsDark();
 	ImGui_ImplGlfw_InitForOpenGL(m_Window, true);
 	ImGui_ImplOpenGL3_Init("#version 440");
 
-	m_Camera = std::make_shared<PerspectiveCamera>(windowWidth, windowHeight, 45.0f);
-	m_Renderer = std::make_shared<Renderer>();
 }
 
 void Application::Run()

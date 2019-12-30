@@ -43,6 +43,11 @@ Texture::~Texture()
 {
 }
 
+std::shared_ptr<Texture> Texture::CreateTexture(const char* path)
+{
+	return std::make_shared<Texture>(path);
+}
+
 void Texture::SetWrapAndFilterMode(int wrapMode, int filterMode)
 {
 	Bind();

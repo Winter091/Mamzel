@@ -78,6 +78,9 @@
     <ClCompile Include="src\renderer\Texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\core\TextureLibrary.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\vendor\glm\ext\matrix_clip_space.inl">
@@ -1112,6 +1115,9 @@
     <ClInclude Include="src\renderer\Texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\core\TextureLibrary.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\textures\redstone_lamp.png">
@@ -1130,6 +1136,24 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="res\textures\metal_floor.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\textures\door_wood_lower.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\textures\door_wood_upper.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\textures\glass.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\textures\moon.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\textures\moon_phases.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\textures\planks_oak.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

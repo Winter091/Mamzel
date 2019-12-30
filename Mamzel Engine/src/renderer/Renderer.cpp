@@ -3,13 +3,14 @@
 
 #include <memory>
 
-// Static variable init
+// Static variables init
 rendererData_t Renderer::s_RenderData;
+std::shared_ptr<Scene> Renderer::s_Scene;
 
 void Renderer::BindFlatColorShader(const glm::mat4& transform, const glm::vec4& color, bool useTexture, float textureScale)
 {
 	s_RenderData.flatColorShader->Bind();
-	s_RenderData.flatColorShader->SetUniform("u_MatrixMVP", m_Scene->GetCamera()->GetMatrixVP() * transform);
+	s_RenderData.flatColorShader->SetUniform("u_MatrixMVP", s_Scene->GetCamera()->GetMatrixVP() * transform);
 	s_RenderData.flatColorShader->SetUniform("u_Color", color.x, color.y, color.z, color.w);
 
 	s_RenderData.flatColorShader->SetUniform("u_TextureRepeatCount", textureScale);
@@ -21,7 +22,7 @@ void Renderer::BindPhongLightningShader(const glm::mat4& transform, const glm::v
 {
 	s_RenderData.phongLightningShader->Bind();
 
-	s_RenderData.phongLightningShader->SetUniform("u_MatrixMVP", m_Scene->GetCamera()->GetMatrixVP() * transform);
+	s_RenderData.phongLightningShader->SetUniform("u_MatrixMVP", s_Scene->GetCamera()->GetMatrixVP() * transform);
 	s_RenderData.phongLightningShader->SetUniform("u_ObjectTransform", transform);
 
 	s_RenderData.phongLightningShader->SetUniform("u_ObjectColor", color.x, color.y, color.z);
@@ -31,12 +32,12 @@ void Renderer::BindPhongLightningShader(const glm::mat4& transform, const glm::v
 	s_RenderData.phongLightningShader->SetUniform("u_DiffuseStrength", 1.0f);
 	s_RenderData.phongLightningShader->SetUniform("u_SpecularStrength", 0.5f);
 
-	s_RenderData.phongLightningShader->SetUniform("u_CameraPos", m_Scene->GetCamera()->GetPosition());
-	s_RenderData.phongLightningShader->SetUniform("u_LightCount", (int)m_Scene->GetLightSources().size());
-	for (int i = 0; i < m_Scene->GetLightSources().size(); i++)
+	s_RenderData.phongLightningShader->SetUniform("u_CameraPos", s_Scene->GetCamera()->GetPosition());
+	s_RenderData.phongLightningShader->SetUniform("u_LightCount", (int)s_Scene->GetLightSources().size());
+	for (int i = 0; i < s_Scene->GetLightSources().size(); i++)
 	{
 		std::string name = "u_LightPositions[" + std::to_string(i) + "]";
-		s_RenderData.phongLightningShader->SetUniform(name.c_str(), m_Scene->GetLightSources()[i]);
+		s_RenderData.phongLightningShader->SetUniform(name.c_str(), s_Scene->GetLightSources()[i]);
 	}
 
 	s_RenderData.phongLightningShader->SetUniform("u_TextureRepeatCount", textureScale);
@@ -44,13 +45,11 @@ void Renderer::BindPhongLightningShader(const glm::mat4& transform, const glm::v
 	s_RenderData.phongLightningShader->SetUniform("u_TextureSampler", 0);
 }
 
-Renderer::Renderer()
-	:m_Scene(nullptr)
+void Renderer::Init()
 {
-
 	s_RenderData.flatColorShader = std::make_shared<Shader>("res/shaders/flatColorShader.vert", "res/shaders/flatColorShader.frag");
 	s_RenderData.phongLightningShader = std::make_shared<Shader>("res/shaders/phongLightning.vert", "res/shaders/phongLightning.frag");
-	
+
 	// Triangle data ================================================================================================
 	float verticesTriangle[] = {
 		// a_Position           a_TexCoord     a_Normal
@@ -63,19 +62,19 @@ Renderer::Renderer()
 	s_RenderData.triangleVB = std::make_shared<VertexBuffer>(verticesTriangle, sizeof(verticesTriangle));
 	s_RenderData.triangleIB = std::make_shared<IndexBuffer>(indicesTriangle, sizeof(indicesTriangle));
 	VertexBufferLayout layoutTriangle = {
-		{ GL_FLOAT, 3, "a_Position" }, 
+		{ GL_FLOAT, 3, "a_Position" },
 		{ GL_FLOAT, 2, "a_TexCoord" },
 		{ GL_FLOAT, 3, "a_Normal" }
 	};
 	s_RenderData.triangleVA = std::make_shared<VertexArray>(s_RenderData.triangleVB, s_RenderData.triangleIB, layoutTriangle);
-	
+
 	// Quad data ====================================================================================================
 	float verticesQuad[] = {
 		// a_Position            a_TexCoord	     a_Normal
 		-0.5f, -0.5f,  0.0f,     0.0f, 0.0f,     0.0f,  0.0f,  1.0f,
 		-0.5f,  0.5f,  0.0f,     0.0f, 1.0f,     0.0f,  0.0f,  1.0f,
 		 0.5f,  0.5f,  0.0f,     1.0f, 1.0f,     0.0f,  0.0f,  1.0f,
-		 0.5f, -0.5f,  0.0f,     1.0f, 0.0f,     0.0f,  0.0f,  1.0f 
+		 0.5f, -0.5f,  0.0f,     1.0f, 0.0f,     0.0f,  0.0f,  1.0f
 	};
 	unsigned int indicesQuad[] = { 0, 1, 2, 2, 3, 0 };
 
@@ -90,52 +89,52 @@ Renderer::Renderer()
 
 	// Cube data ====================================================================================================
 	float verticesCube[] = {
-	    // a_Position            a_TexCoord		 a_Normal
-	    -0.5f, -0.5f, -0.5f,     0.0f, 0.0f,     0.0f,  0.0f, -1.0f,
-	     0.5f, -0.5f, -0.5f,     1.0f, 0.0f,     0.0f,  0.0f, -1.0f,
-	     0.5f,  0.5f, -0.5f,     1.0f, 1.0f,     0.0f,  0.0f, -1.0f,
-	     0.5f,  0.5f, -0.5f,     1.0f, 1.0f,     0.0f,  0.0f, -1.0f,
-	    -0.5f,  0.5f, -0.5f,     0.0f, 1.0f,     0.0f,  0.0f, -1.0f,
-	    -0.5f, -0.5f, -0.5f,     0.0f, 0.0f,     0.0f,  0.0f, -1.0f,
-	    					     			     
-	    -0.5f, -0.5f,  0.5f,     0.0f, 0.0f,     0.0f,  0.0f,  1.0f,
-	     0.5f, -0.5f,  0.5f,     1.0f, 0.0f,     0.0f,  0.0f,  1.0f,
-	     0.5f,  0.5f,  0.5f,     1.0f, 1.0f,     0.0f,  0.0f,  1.0f,
-	     0.5f,  0.5f,  0.5f,     1.0f, 1.0f,     0.0f,  0.0f,  1.0f,
-	    -0.5f,  0.5f,  0.5f,     0.0f, 1.0f,     0.0f,  0.0f,  1.0f,
-	    -0.5f, -0.5f,  0.5f,     0.0f, 0.0f,     0.0f,  0.0f,  1.0f,
-	    					     			     
-	    -0.5f,  0.5f,  0.5f,     1.0f, 0.0f,    -1.0f,  0.0f,  0.0f,
-	    -0.5f,  0.5f, -0.5f,     1.0f, 1.0f,    -1.0f,  0.0f,  0.0f,
-	    -0.5f, -0.5f, -0.5f,     0.0f, 1.0f,    -1.0f,  0.0f,  0.0f,
-	    -0.5f, -0.5f, -0.5f,     0.0f, 1.0f,    -1.0f,  0.0f,  0.0f,
-	    -0.5f, -0.5f,  0.5f,     0.0f, 0.0f,    -1.0f,  0.0f,  0.0f,
-	    -0.5f,  0.5f,  0.5f,     1.0f, 0.0f,    -1.0f,  0.0f,  0.0f,
-	    					     			     
-	     0.5f,  0.5f,  0.5f,     1.0f, 0.0f,     1.0f,  0.0f,  0.0f,
-	     0.5f,  0.5f, -0.5f,     1.0f, 1.0f,     1.0f,  0.0f,  0.0f,
-	     0.5f, -0.5f, -0.5f,     0.0f, 1.0f,     1.0f,  0.0f,  0.0f,
-	     0.5f, -0.5f, -0.5f,     0.0f, 1.0f,     1.0f,  0.0f,  0.0f,
-	     0.5f, -0.5f,  0.5f,     0.0f, 0.0f,     1.0f,  0.0f,  0.0f,
-	     0.5f,  0.5f,  0.5f,     1.0f, 0.0f,     1.0f,  0.0f,  0.0f,
-	    					     			     
-	    -0.5f, -0.5f, -0.5f,     0.0f, 1.0f,     0.0f, -1.0f,  0.0f,
-	     0.5f, -0.5f, -0.5f,     1.0f, 1.0f,     0.0f, -1.0f,  0.0f,
-	     0.5f, -0.5f,  0.5f,     1.0f, 0.0f,     0.0f, -1.0f,  0.0f,
-	     0.5f, -0.5f,  0.5f,     1.0f, 0.0f,     0.0f, -1.0f,  0.0f,
-	    -0.5f, -0.5f,  0.5f,     0.0f, 0.0f,     0.0f, -1.0f,  0.0f,
-	    -0.5f, -0.5f, -0.5f,     0.0f, 1.0f,     0.0f, -1.0f,  0.0f,
-	    					     			     
-	    -0.5f,  0.5f, -0.5f,     0.0f, 1.0f,     0.0f,  1.0f,  0.0f,
-	     0.5f,  0.5f, -0.5f,     1.0f, 1.0f,     0.0f,  1.0f,  0.0f,
-	     0.5f,  0.5f,  0.5f,     1.0f, 0.0f,     0.0f,  1.0f,  0.0f,
-	     0.5f,  0.5f,  0.5f,     1.0f, 0.0f,     0.0f,  1.0f,  0.0f,
-	    -0.5f,  0.5f,  0.5f,     0.0f, 0.0f,     0.0f,  1.0f,  0.0f,
-	    -0.5f,  0.5f, -0.5f,     0.0f, 1.0f,     0.0f,  1.0f,  0.0f
+		// a_Position            a_TexCoord		 a_Normal
+		-0.5f, -0.5f, -0.5f,     0.0f, 0.0f,     0.0f,  0.0f, -1.0f,
+		 0.5f, -0.5f, -0.5f,     1.0f, 0.0f,     0.0f,  0.0f, -1.0f,
+		 0.5f,  0.5f, -0.5f,     1.0f, 1.0f,     0.0f,  0.0f, -1.0f,
+		 0.5f,  0.5f, -0.5f,     1.0f, 1.0f,     0.0f,  0.0f, -1.0f,
+		-0.5f,  0.5f, -0.5f,     0.0f, 1.0f,     0.0f,  0.0f, -1.0f,
+		-0.5f, -0.5f, -0.5f,     0.0f, 0.0f,     0.0f,  0.0f, -1.0f,
+
+		-0.5f, -0.5f,  0.5f,     0.0f, 0.0f,     0.0f,  0.0f,  1.0f,
+		 0.5f, -0.5f,  0.5f,     1.0f, 0.0f,     0.0f,  0.0f,  1.0f,
+		 0.5f,  0.5f,  0.5f,     1.0f, 1.0f,     0.0f,  0.0f,  1.0f,
+		 0.5f,  0.5f,  0.5f,     1.0f, 1.0f,     0.0f,  0.0f,  1.0f,
+		-0.5f,  0.5f,  0.5f,     0.0f, 1.0f,     0.0f,  0.0f,  1.0f,
+		-0.5f, -0.5f,  0.5f,     0.0f, 0.0f,     0.0f,  0.0f,  1.0f,
+
+		-0.5f,  0.5f,  0.5f,     1.0f, 0.0f,    -1.0f,  0.0f,  0.0f,
+		-0.5f,  0.5f, -0.5f,     1.0f, 1.0f,    -1.0f,  0.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f,     0.0f, 1.0f,    -1.0f,  0.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f,     0.0f, 1.0f,    -1.0f,  0.0f,  0.0f,
+		-0.5f, -0.5f,  0.5f,     0.0f, 0.0f,    -1.0f,  0.0f,  0.0f,
+		-0.5f,  0.5f,  0.5f,     1.0f, 0.0f,    -1.0f,  0.0f,  0.0f,
+
+		 0.5f,  0.5f,  0.5f,     1.0f, 0.0f,     1.0f,  0.0f,  0.0f,
+		 0.5f,  0.5f, -0.5f,     1.0f, 1.0f,     1.0f,  0.0f,  0.0f,
+		 0.5f, -0.5f, -0.5f,     0.0f, 1.0f,     1.0f,  0.0f,  0.0f,
+		 0.5f, -0.5f, -0.5f,     0.0f, 1.0f,     1.0f,  0.0f,  0.0f,
+		 0.5f, -0.5f,  0.5f,     0.0f, 0.0f,     1.0f,  0.0f,  0.0f,
+		 0.5f,  0.5f,  0.5f,     1.0f, 0.0f,     1.0f,  0.0f,  0.0f,
+
+		-0.5f, -0.5f, -0.5f,     0.0f, 1.0f,     0.0f, -1.0f,  0.0f,
+		 0.5f, -0.5f, -0.5f,     1.0f, 1.0f,     0.0f, -1.0f,  0.0f,
+		 0.5f, -0.5f,  0.5f,     1.0f, 0.0f,     0.0f, -1.0f,  0.0f,
+		 0.5f, -0.5f,  0.5f,     1.0f, 0.0f,     0.0f, -1.0f,  0.0f,
+		-0.5f, -0.5f,  0.5f,     0.0f, 0.0f,     0.0f, -1.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f,     0.0f, 1.0f,     0.0f, -1.0f,  0.0f,
+
+		-0.5f,  0.5f, -0.5f,     0.0f, 1.0f,     0.0f,  1.0f,  0.0f,
+		 0.5f,  0.5f, -0.5f,     1.0f, 1.0f,     0.0f,  1.0f,  0.0f,
+		 0.5f,  0.5f,  0.5f,     1.0f, 0.0f,     0.0f,  1.0f,  0.0f,
+		 0.5f,  0.5f,  0.5f,     1.0f, 0.0f,     0.0f,  1.0f,  0.0f,
+		-0.5f,  0.5f,  0.5f,     0.0f, 0.0f,     0.0f,  1.0f,  0.0f,
+		-0.5f,  0.5f, -0.5f,     0.0f, 1.0f,     0.0f,  1.0f,  0.0f
 	};
-	
+
 	s_RenderData.cubeVB = std::make_shared<VertexBuffer>(verticesCube, sizeof(verticesCube));
-	VertexBufferLayout layoutCube = { 
+	VertexBufferLayout layoutCube = {
 		{ GL_FLOAT, 3, "a_Position" },
 		{ GL_FLOAT, 2, "a_TexCoord" },
 		{ GL_FLOAT, 3, "a_Normal" }
@@ -143,7 +142,7 @@ Renderer::Renderer()
 	s_RenderData.cubeVA = std::make_shared<VertexArray>(s_RenderData.cubeVB, layoutCube);
 }
 
-Renderer::~Renderer()
+void Renderer::Free()
 {
 	s_RenderData.triangleVB = nullptr;
 	s_RenderData.triangleIB = nullptr;
@@ -162,14 +161,14 @@ Renderer::~Renderer()
 
 void Renderer::BeginScene(const Scene& scene)
 {
-	m_Scene = std::make_shared<Scene>(scene);
+	s_Scene = std::make_shared<Scene>(scene);
 }
 
 void Renderer::EndScene()
 {
 }
 
-void Renderer::SetClearColor(float r, float g, float b) const
+void Renderer::SetClearColor(float r, float g, float b)
 {
 	HANDLE_ERROR(glClearColor(r, g, b, 1.0f));
 }
@@ -184,7 +183,7 @@ void Renderer::DrawCustomShape(const std::unique_ptr<VertexArray>& va, const std
 	va->Bind();
 	shader->Bind();
 
-	shader->SetUniform("u_MatrixMVP", m_Scene->GetCamera()->GetMatrixVP() * modelMatrix);
+	shader->SetUniform("u_MatrixMVP", s_Scene->GetCamera()->GetMatrixVP() * modelMatrix);
 
 	// No IndexBuffer is used
 	if (va->GetIndexCount() == -1)
@@ -214,9 +213,9 @@ void Renderer::DrawTriangle(const glm::vec3& position, const glm::vec4& rotation
 
 void Renderer::DrawTriangle(const glm::mat4& transform, const glm::vec4& color)
 {		
-	if (m_Scene->GetLightMode() == LightMode::FLAT_COLOR)
+	if (s_Scene->GetLightMode() == LightMode::FLAT_COLOR)
 		BindFlatColorShader(transform, color, false, 0);
-	else if (m_Scene->GetLightMode() == LightMode::PHONG_LIGHTNING)
+	else if (s_Scene->GetLightMode() == LightMode::PHONG_LIGHTNING)
 		BindPhongLightningShader(transform, color, false, 0);
 	
 	s_RenderData.triangleVA->Bind();
@@ -234,9 +233,9 @@ void Renderer::DrawTriangle(const glm::mat4& transform, std::shared_ptr<Texture>
 {
 	texture->Bind();
 
-	if (m_Scene->GetLightMode() == LightMode::FLAT_COLOR)
+	if (s_Scene->GetLightMode() == LightMode::FLAT_COLOR)
 		BindFlatColorShader(transform, color, true, texture->GetScale());
-	else if (m_Scene->GetLightMode() == LightMode::PHONG_LIGHTNING)
+	else if (s_Scene->GetLightMode() == LightMode::PHONG_LIGHTNING)
 		BindPhongLightningShader(transform, color, true, texture->GetScale());
 
 	s_RenderData.triangleVA->Bind();
@@ -254,9 +253,9 @@ void Renderer::DrawQuad(const glm::vec3& position, const glm::vec4& rotation, co
 
 void Renderer::DrawQuad(const glm::mat4& transform, const glm::vec4& color)
 {
-	if (m_Scene->GetLightMode() == LightMode::FLAT_COLOR)
+	if (s_Scene->GetLightMode() == LightMode::FLAT_COLOR)
 		BindFlatColorShader(transform, color, false, 0);
-	else if (m_Scene->GetLightMode() == LightMode::PHONG_LIGHTNING)
+	else if (s_Scene->GetLightMode() == LightMode::PHONG_LIGHTNING)
 		BindPhongLightningShader(transform, color, false, 0);
 
 	s_RenderData.quadVA->Bind();
@@ -274,9 +273,9 @@ void Renderer::DrawQuad(const glm::mat4& transform, std::shared_ptr<Texture> tex
 {
 	texture->Bind();
 	
-	if (m_Scene->GetLightMode() == LightMode::FLAT_COLOR)
+	if (s_Scene->GetLightMode() == LightMode::FLAT_COLOR)
 		BindFlatColorShader(transform, color, true, texture->GetScale());
-	else if (m_Scene->GetLightMode() == LightMode::PHONG_LIGHTNING)
+	else if (s_Scene->GetLightMode() == LightMode::PHONG_LIGHTNING)
 		BindPhongLightningShader(transform, color, true, texture->GetScale());
 
 	s_RenderData.quadVA->Bind();
@@ -294,9 +293,9 @@ void Renderer::DrawCube(const glm::vec3& position, const glm::vec4& rotation, co
 
 void Renderer::DrawCube(const glm::mat4& transform, const glm::vec4& color)
 {
-	if (m_Scene->GetLightMode() == LightMode::FLAT_COLOR)
+	if (s_Scene->GetLightMode() == LightMode::FLAT_COLOR)
 		BindFlatColorShader(transform, color, false, 0);
-	else if (m_Scene->GetLightMode() == LightMode::PHONG_LIGHTNING)
+	else if (s_Scene->GetLightMode() == LightMode::PHONG_LIGHTNING)
 		BindPhongLightningShader(transform, color, false, 0);
 
 	s_RenderData.cubeVA->Bind();
@@ -314,9 +313,9 @@ void Renderer::DrawCube(const glm::mat4& transform, std::shared_ptr<Texture> tex
 {
 	texture->Bind();
 	
-	if (m_Scene->GetLightMode() == LightMode::FLAT_COLOR)
+	if (s_Scene->GetLightMode() == LightMode::FLAT_COLOR)
 		BindFlatColorShader(transform, color, true, texture->GetScale());
-	else if (m_Scene->GetLightMode() == LightMode::PHONG_LIGHTNING)
+	else if (s_Scene->GetLightMode() == LightMode::PHONG_LIGHTNING)
 		BindPhongLightningShader(transform, color, true, texture->GetScale());
 
 	s_RenderData.cubeVA->Bind();

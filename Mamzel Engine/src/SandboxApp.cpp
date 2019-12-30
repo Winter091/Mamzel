@@ -4,23 +4,18 @@ SandboxApp::SandboxApp()
 	: Application(1600, 900, true)
 {
 	m_Camera->SetPosition(glm::vec3(0.0f, 0.0f, 4.0f));
-	m_Camera->SetMoveSpeedAndMouseSens(0.05f, 0.8f);
+	m_Camera->SetMoveSpeedAndMouseSens(0.1f, 1.0f);
 
-	m_Renderer->SetClearColor(0.0f, 0.0f, 0.0f);
+	TextureLibrary::Load("cobblestone", "res/textures/cobblestone.png");
+	TextureLibrary::Load("oak_planks", "res/textures/planks_oak.png");
+	TextureLibrary::Load("glass", "res/textures/glass.png");
+	TextureLibrary::Load("door_lower", "res/textures/door_wood_lower.png");
+	TextureLibrary::Load("door_upper", "res/textures/door_wood_upper.png");
+	TextureLibrary::Load("redstone_lamp", "res/textures/redstone_lamp.png");
+	TextureLibrary::Load("moon", "res/textures/moon.png");
 
-	m_CobblestoneTexture = std::make_shared<Texture>("res/textures/cobblestone.png");
-	m_CobblestoneTexture->SetWrapAndFilterMode(GL_REPEAT, GL_NEAREST);
-	m_CobblestoneTexture->SetScale(100.0f);
-
-	m_OakPlanksTexture = std::make_shared<Texture>("res/textures/planks_oak.png");
-	m_GlassTexture = std::make_shared<Texture>("res/textures/glass.png");
-
-	m_DoorLowerTexture = std::make_shared<Texture>("res/textures/door_wood_lower.png");
-	m_DoorUpperTexture = std::make_shared<Texture>("res/textures/door_wood_upper.png");
-
-	m_RedstoneLampTexture = std::make_shared<Texture>("res/textures/redstone_lamp.png");
-
-	m_MoonTexture = std::make_shared<Texture>("res/textures/moon.png");
+	TextureLibrary::SetWrapAndFilterMode("cobblestone", GL_REPEAT, GL_NEAREST);
+	TextureLibrary::SetScale("cobblestone", 100.0f);
 }
 
 SandboxApp::~SandboxApp()
@@ -32,12 +27,15 @@ void SandboxApp::DrawGui()
 {
 	ImGui::Begin("Gui");
 	ImGui::Text("Frame takes %.3f ms. (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+	ImGui::Checkbox("Lightning 1", &usePhong1);
+	ImGui::Checkbox("Lightning 2", &usePhong2);
 	ImGui::End();
 }
 
 void SandboxApp::DrawOpenGL()
 {
-	m_Renderer->Clear();
+	Renderer::SetClearColor(0.0f, 0.0f, 0.0f);
+	Renderer::Clear();
 
 	static glm::vec3 lamp1Position = glm::vec3(2.0, 0.0, 2.0);
 	static glm::vec3 lamp2Position = glm::vec3(-2.0, 0.0, -2.0);
@@ -47,51 +45,51 @@ void SandboxApp::DrawOpenGL()
 	scene.AddLightSource(lamp1Position);
 	scene.AddLightSource(lamp2Position);
 
-	scene.SetLightning(LightMode::PHONG_LIGHTNING);
-	m_Renderer->BeginScene(scene);
+	scene.SetLightning(usePhong1 ? LightMode::PHONG_LIGHTNING : LightMode::FLAT_COLOR);
+	Renderer::BeginScene(scene);
 	{
 		// Floor
-		m_Renderer->DrawQuad({ 0.0, -0.5, 0.0 }, { 1.0, 0.0, 0.0, 90.0 }, glm::vec3(100.0f), m_CobblestoneTexture);
+		Renderer::DrawQuad({ 0.0, -0.5, 0.0 }, { 1.0, 0.0, 0.0, 90.0 }, glm::vec3(100.0f), TextureLibrary::Get("cobblestone"));
 
 		// Layer 1
 		for (int x = -1; x <= 1; x++)
 			for (int y = 0; y <= 2; y++)
 				if (!(x == 0 && y == 1))
-					m_Renderer->DrawCube({ x, y, -1.0 }, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), m_OakPlanksTexture);
+					Renderer::DrawCube({ x, y, -1.0 }, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), TextureLibrary::Get("oak_planks"));
 
 		// Layer 2
 		for (int x = -1; x <= 1; x++)
-			m_Renderer->DrawCube({ x, 2.0, 0.0 }, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), m_OakPlanksTexture);
+			Renderer::DrawCube({ x, 2.0, 0.0 }, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), TextureLibrary::Get("oak_planks"));
 
-		m_Renderer->DrawCube({ -1.0, 0.0, 0.0 }, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), m_OakPlanksTexture);
-		m_Renderer->DrawCube({  1.0, 0.0, 0.0 }, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), m_OakPlanksTexture);
+		Renderer::DrawCube({ -1.0, 0.0, 0.0 }, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), TextureLibrary::Get("oak_planks"));
+		Renderer::DrawCube({  1.0, 0.0, 0.0 }, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), TextureLibrary::Get("oak_planks"));
 
 		// Layer 3
 		for (int x = -1; x <= 1; x++)
 			for (int y = 0; y <= 2; y++)
 				if (!(x == 0 && y == 1) && !(x == 0 && y == 0))
-					m_Renderer->DrawCube({ x, y, 1.0 }, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), m_OakPlanksTexture);
+					Renderer::DrawCube({ x, y, 1.0 }, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), TextureLibrary::Get("oak_planks"));
 
 		// Windows
-		m_Renderer->DrawCube({  0.0, 1.0, -1.0 }, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), m_GlassTexture);
-		m_Renderer->DrawCube({ -1.0, 1.0,  0.0 }, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), m_GlassTexture);
-		m_Renderer->DrawCube({  1.0, 1.0,  0.0 }, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), m_GlassTexture);
+		Renderer::DrawCube({  0.0, 1.0, -1.0 }, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), TextureLibrary::Get("glass"));
+		Renderer::DrawCube({ -1.0, 1.0,  0.0 }, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), TextureLibrary::Get("glass"));
+		Renderer::DrawCube({  1.0, 1.0,  0.0 }, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), TextureLibrary::Get("glass"));
 
 		// Door
-		m_Renderer->DrawQuad({ 0.0, 1.0,  1.5 }, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), m_DoorUpperTexture);
-		m_Renderer->DrawQuad({ 0.0, 0.0,  1.5 }, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), m_DoorLowerTexture);
+		Renderer::DrawQuad({ 0.0, 1.0,  1.5 }, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), TextureLibrary::Get("door_upper"));
+		Renderer::DrawQuad({ 0.0, 0.0,  1.5 }, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), TextureLibrary::Get("door_lower"));
 	}
-	m_Renderer->EndScene();
+	Renderer::EndScene();
 
-	scene.SetLightning(LightMode::FLAT_COLOR);
-	m_Renderer->BeginScene(scene);
+	scene.SetLightning(usePhong2 ? LightMode::PHONG_LIGHTNING : LightMode::FLAT_COLOR);
+	Renderer::BeginScene(scene);
 	{	
 		// Lamps
-		m_Renderer->DrawCube(lamp1Position, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), m_RedstoneLampTexture);
-		m_Renderer->DrawCube(lamp2Position, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), m_RedstoneLampTexture);
+		Renderer::DrawCube(lamp1Position, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), TextureLibrary::Get("redstone_lamp"));
+		Renderer::DrawCube(lamp2Position, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), TextureLibrary::Get("redstone_lamp"));
 
 		// Moon
-		m_Renderer->DrawQuad({-10.0, 20.0, -100.0}, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(20.0f), m_MoonTexture);
+		Renderer::DrawQuad({-10.0, 20.0, -100.0}, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(20.0f), TextureLibrary::Get("moon"));
 	}
-	m_Renderer->EndScene();
+	Renderer::EndScene();
 }

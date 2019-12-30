@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 class Texture
 {
 private:
@@ -10,6 +12,8 @@ public:
 	Texture();
 	Texture(const char* path);
 	~Texture();
+
+	static std::shared_ptr<Texture> CreateTexture(const char* path);
 
 	void SetWrapAndFilterMode(int wrapMode, int filterMode);
 	void SetScale(float scale);

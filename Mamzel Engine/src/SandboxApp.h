@@ -10,13 +10,7 @@ private:
 	void DrawOpenGL();
 	void DrawGui();
 
-	std::shared_ptr<Texture> m_CobblestoneTexture;
-	std::shared_ptr<Texture> m_OakPlanksTexture;
-	std::shared_ptr<Texture> m_GlassTexture;
-	std::shared_ptr<Texture> m_DoorLowerTexture;
-	std::shared_ptr<Texture> m_DoorUpperTexture;
-	std::shared_ptr<Texture> m_RedstoneLampTexture;
-	std::shared_ptr<Texture> m_MoonTexture;
+	bool usePhong1 = false, usePhong2 = true;
 
 public:
 	SandboxApp();

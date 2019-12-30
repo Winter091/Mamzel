@@ -30,41 +30,42 @@ struct rendererData_t
 class Renderer
 {
 private:
-	std::shared_ptr<Scene> m_Scene;
-	
+	static std::shared_ptr<Scene> s_Scene;
 	static rendererData_t s_RenderData;
 
 private:
-	void BindFlatColorShader(const glm::mat4& transform, const glm::vec4& color, bool useTexture, float textureRepeatCount);
-	void BindPhongLightningShader(const glm::mat4& transform, const glm::vec4& color, bool useTexture, float textureRepeatCount);
+	static void BindFlatColorShader(const glm::mat4& transform, const glm::vec4& color, bool useTexture, float textureRepeatCount);
+	static void BindPhongLightningShader(const glm::mat4& transform, const glm::vec4& color, bool useTexture, float textureRepeatCount);
 
 public:
 
-	Renderer();
-	~Renderer();
+	Renderer() = delete;
 
-	void BeginScene(const Scene& scene);
-	void EndScene();
+	static void Init();
+	static void Free();
 
-	void SetClearColor(float r, float g, float b) const;
-	void Clear();
+	static void BeginScene(const Scene& scene);
+	static void EndScene();
 
-	void DrawCustomShape(const std::unique_ptr<VertexArray>& va, const std::unique_ptr<Shader>& shader, const glm::mat4& modelMatrix);
-	void DrawCustomShape(const std::unique_ptr<VertexArray>& va, const std::unique_ptr<Shader>& shader, const std::shared_ptr<Texture> texture, const glm::mat4& modelMatrix);
+	static void SetClearColor(float r, float g, float b);
+	static void Clear();
 
-	void DrawTriangle(const glm::vec3& position, const glm::vec4& rotation, const glm::vec3& scale = glm::vec3(1.0f), const glm::vec4& color = glm::vec4(1.0f));
-	void DrawTriangle(const glm::mat4& transform, const glm::vec4& color = glm::vec4(1.0f));
-	void DrawTriangle(const glm::vec3& position, const glm::vec4& rotation, const glm::vec3& scale, const std::shared_ptr<Texture> texture, const glm::vec4& color = glm::vec4(1.0f));
-	void DrawTriangle(const glm::mat4& transform, std::shared_ptr<Texture> texture, const glm::vec4& color = glm::vec4(1.0f));
+	static void DrawCustomShape(const std::unique_ptr<VertexArray>& va, const std::unique_ptr<Shader>& shader, const glm::mat4& modelMatrix);
+	static void DrawCustomShape(const std::unique_ptr<VertexArray>& va, const std::unique_ptr<Shader>& shader, const std::shared_ptr<Texture> texture, const glm::mat4& modelMatrix);
 
-	void DrawQuad(const glm::vec3& position, const glm::vec4& rotation, const glm::vec3& scale = glm::vec3(1.0f), const glm::vec4& color = glm::vec4(1.0f));
-	void DrawQuad(const glm::mat4& transform, const glm::vec4& color = glm::vec4(1.0f));
-	void DrawQuad(const glm::vec3& position, const glm::vec4& rotation, const glm::vec3& scale, const std::shared_ptr<Texture> texture, const glm::vec4& color = glm::vec4(1.0f));
-	void DrawQuad(const glm::mat4& transform, std::shared_ptr<Texture> texture, const glm::vec4& color = glm::vec4(1.0f));
+	static void DrawTriangle(const glm::vec3& position, const glm::vec4& rotation, const glm::vec3& scale = glm::vec3(1.0f), const glm::vec4& color = glm::vec4(1.0f));
+	static void DrawTriangle(const glm::mat4& transform, const glm::vec4& color = glm::vec4(1.0f));
+	static void DrawTriangle(const glm::vec3& position, const glm::vec4& rotation, const glm::vec3& scale, const std::shared_ptr<Texture> texture, const glm::vec4& color = glm::vec4(1.0f));
+	static void DrawTriangle(const glm::mat4& transform, std::shared_ptr<Texture> texture, const glm::vec4& color = glm::vec4(1.0f));
 
-	void DrawCube(const glm::vec3& position, const glm::vec4& rotation, const glm::vec3& scale = glm::vec3(1.0f), const glm::vec4& color = glm::vec4(1.0f));
-	void DrawCube(const glm::mat4& transform, const glm::vec4& color = glm::vec4(1.0f));
-	void DrawCube(const glm::vec3& position, const glm::vec4& rotation, const glm::vec3& scale, const std::shared_ptr<Texture> texture, const glm::vec4& color = glm::vec4(1.0f));
-	void DrawCube(const glm::mat4& transform, std::shared_ptr<Texture> texture, const glm::vec4& color = glm::vec4(1.0f));
+	static void DrawQuad(const glm::vec3& position, const glm::vec4& rotation, const glm::vec3& scale = glm::vec3(1.0f), const glm::vec4& color = glm::vec4(1.0f));
+	static void DrawQuad(const glm::mat4& transform, const glm::vec4& color = glm::vec4(1.0f));
+	static void DrawQuad(const glm::vec3& position, const glm::vec4& rotation, const glm::vec3& scale, const std::shared_ptr<Texture> texture, const glm::vec4& color = glm::vec4(1.0f));
+	static void DrawQuad(const glm::mat4& transform, std::shared_ptr<Texture> texture, const glm::vec4& color = glm::vec4(1.0f));
+
+	static void DrawCube(const glm::vec3& position, const glm::vec4& rotation, const glm::vec3& scale = glm::vec3(1.0f), const glm::vec4& color = glm::vec4(1.0f));
+	static void DrawCube(const glm::mat4& transform, const glm::vec4& color = glm::vec4(1.0f));
+	static void DrawCube(const glm::vec3& position, const glm::vec4& rotation, const glm::vec3& scale, const std::shared_ptr<Texture> texture, const glm::vec4& color = glm::vec4(1.0f));
+	static void DrawCube(const glm::mat4& transform, std::shared_ptr<Texture> texture, const glm::vec4& color = glm::vec4(1.0f));
 
 };
