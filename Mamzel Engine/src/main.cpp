@@ -1,8 +1,8 @@
-#include "SandboxApp.h"
+#include "MinecraftScene.h"
 
 int main()
 {	
-	SandboxApp* app = new SandboxApp;
+	MinecraftScene* app = new MinecraftScene;
 	app->Run();
 	delete app;
 }

@@ -69,6 +69,11 @@ void PerspectiveCamera::SetMoveSpeedAndMouseSens(float moveSpeed, float mouseSen
 	m_MouseSens = mouseSens;
 }
 
+void PerspectiveCamera::SetAspectRatio(float newAspectRatio)
+{
+	m_AspectRatio = newAspectRatio;
+}
+
 void PerspectiveCamera::Update()
 {
 	//handleMouseMovement(window);

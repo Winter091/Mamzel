@@ -10,11 +10,15 @@ private:
 	void DrawOpenGL();
 	void DrawGui();
 
-	bool usePhong1 = false, usePhong2 = true;
+	std::shared_ptr<VertexBuffer> m_VertexBuffer;
+	std::shared_ptr<VertexArray> m_VertexArray;
+	std::shared_ptr<Shader> m_Shader;
+
+	float lampPos[3], objPos[3];
 
 public:
 	SandboxApp();
 	~SandboxApp();
-
 };
+
 

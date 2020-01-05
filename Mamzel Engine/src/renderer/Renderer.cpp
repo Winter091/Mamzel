@@ -13,7 +13,7 @@ void Renderer::BindFlatColorShader(const glm::mat4& transform, const glm::vec4& 
 	s_RenderData.flatColorShader->SetUniform("u_MatrixMVP", s_Scene->GetCamera()->GetMatrixVP() * transform);
 	s_RenderData.flatColorShader->SetUniform("u_Color", color.x, color.y, color.z, color.w);
 
-	s_RenderData.flatColorShader->SetUniform("u_TextureRepeatCount", textureScale);
+	s_RenderData.flatColorShader->SetUniform("u_TextureScale", textureScale);
 	s_RenderData.flatColorShader->SetUniform("u_UseTexture", (int)useTexture);
 	s_RenderData.flatColorShader->SetUniform("u_TexureSampler", 0);
 }
@@ -22,33 +22,97 @@ void Renderer::BindPhongLightningShader(const glm::mat4& transform, const glm::v
 {
 	s_RenderData.phongLightningShader->Bind();
 
+	s_RenderData.phongLightningShader->SetUniform("u_Light.ambient", 0.1f);
+	s_RenderData.phongLightningShader->SetUniform("u_Light.diffuse", 1.0f);
+	s_RenderData.phongLightningShader->SetUniform("u_Light.specular", 0.5f);
+
+	s_RenderData.phongLightningShader->SetUniform("u_Light.count", (int)s_Scene->GetLightSources().size());
+	for (int i = 0; i < s_Scene->GetLightSources().size(); i++)
+	{
+		std::shared_ptr<Light> light = s_Scene->GetLightSources()[i];
+		std::string index = std::to_string(i);
+		const glm::vec3& lightAttenuation = light->GetAttenuation();
+
+		std::string name = "u_Light.positions[" + index + "]";
+		s_RenderData.phongLightningShader->SetUniform(name.c_str(), light->GetPosition());
+
+		name = "u_Light.diffuseColor[" + index + "]";
+		s_RenderData.blinnPhongLightningShader->SetUniform(name.c_str(), light->GetDiffuseColor());
+
+		name = "u_Light.specularColor[" + index + "]";
+		s_RenderData.blinnPhongLightningShader->SetUniform(name.c_str(), light->GetSpecularColor());
+
+		name = "u_Light.constant[" + index + "]";
+		s_RenderData.phongLightningShader->SetUniform(name.c_str(), lightAttenuation.x);
+
+		name = "u_Light.linear[" + index + "]";
+		s_RenderData.phongLightningShader->SetUniform(name.c_str(), lightAttenuation.y);
+
+		name = "u_Light.quadratic[" + index + "]";
+		s_RenderData.phongLightningShader->SetUniform(name.c_str(), lightAttenuation.z);
+	}
+
 	s_RenderData.phongLightningShader->SetUniform("u_MatrixMVP", s_Scene->GetCamera()->GetMatrixVP() * transform);
 	s_RenderData.phongLightningShader->SetUniform("u_ObjectTransform", transform);
 
 	s_RenderData.phongLightningShader->SetUniform("u_ObjectColor", color.x, color.y, color.z);
-	s_RenderData.phongLightningShader->SetUniform("u_LightColor", 1.0f, 1.0f, 1.0f);
-
-	s_RenderData.phongLightningShader->SetUniform("u_AmbientStrength", 0.1f);
-	s_RenderData.phongLightningShader->SetUniform("u_DiffuseStrength", 1.0f);
-	s_RenderData.phongLightningShader->SetUniform("u_SpecularStrength", 0.5f);
-
 	s_RenderData.phongLightningShader->SetUniform("u_CameraPos", s_Scene->GetCamera()->GetPosition());
-	s_RenderData.phongLightningShader->SetUniform("u_LightCount", (int)s_Scene->GetLightSources().size());
-	for (int i = 0; i < s_Scene->GetLightSources().size(); i++)
-	{
-		std::string name = "u_LightPositions[" + std::to_string(i) + "]";
-		s_RenderData.phongLightningShader->SetUniform(name.c_str(), s_Scene->GetLightSources()[i]);
-	}
 
-	s_RenderData.phongLightningShader->SetUniform("u_TextureRepeatCount", textureScale);
+	s_RenderData.phongLightningShader->SetUniform("u_TextureScale", textureScale);
 	s_RenderData.phongLightningShader->SetUniform("u_UseTexture", (int)useTexture);
 	s_RenderData.phongLightningShader->SetUniform("u_TextureSampler", 0);
+}
+
+void Renderer::BindBlinnPhongLightningShader(const glm::mat4& transform, const glm::vec4& color, bool useTexture, float textureScale)
+{
+	s_RenderData.blinnPhongLightningShader->Bind();
+
+	s_RenderData.blinnPhongLightningShader->SetUniform("u_Light.ambient", 0.1f);
+	s_RenderData.blinnPhongLightningShader->SetUniform("u_Light.diffuse", 1.0f);
+	s_RenderData.blinnPhongLightningShader->SetUniform("u_Light.specular", 0.1f);
+
+	s_RenderData.blinnPhongLightningShader->SetUniform("u_Light.count", (int)s_Scene->GetLightSources().size());
+	for (int i = 0; i < s_Scene->GetLightSources().size(); i++)
+	{
+		std::shared_ptr<Light> light = s_Scene->GetLightSources()[i];
+		std::string index = std::to_string(i);
+		const glm::vec3& lightAttenuation = light->GetAttenuation();
+
+		std::string name = "u_Light.positions[" + index + "]";
+		s_RenderData.blinnPhongLightningShader->SetUniform(name.c_str(), light->GetPosition());
+
+		name = "u_Light.diffuseColor[" + index + "]";
+		s_RenderData.blinnPhongLightningShader->SetUniform(name.c_str(), light->GetDiffuseColor());
+
+		name = "u_Light.specularColor[" + index + "]";
+		s_RenderData.blinnPhongLightningShader->SetUniform(name.c_str(), light->GetSpecularColor());
+
+		name = "u_Light.constant[" + index + "]";
+		s_RenderData.blinnPhongLightningShader->SetUniform(name.c_str(), lightAttenuation.x);
+
+		name = "u_Light.linear[" + index + "]";
+		s_RenderData.blinnPhongLightningShader->SetUniform(name.c_str(), lightAttenuation.y);
+
+		name = "u_Light.quadratic[" + index + "]";
+		s_RenderData.blinnPhongLightningShader->SetUniform(name.c_str(), lightAttenuation.z);
+	}
+
+	s_RenderData.blinnPhongLightningShader->SetUniform("u_MatrixMVP", s_Scene->GetCamera()->GetMatrixVP() * transform);
+	s_RenderData.blinnPhongLightningShader->SetUniform("u_ObjectTransform", transform);
+
+	s_RenderData.blinnPhongLightningShader->SetUniform("u_ObjectColor", color.x, color.y, color.z);
+	s_RenderData.blinnPhongLightningShader->SetUniform("u_CameraPos", s_Scene->GetCamera()->GetPosition());
+
+	s_RenderData.blinnPhongLightningShader->SetUniform("u_TextureScale", textureScale);
+	s_RenderData.blinnPhongLightningShader->SetUniform("u_UseTexture", (int)useTexture);
+	s_RenderData.blinnPhongLightningShader->SetUniform("u_TextureSampler", 0);
 }
 
 void Renderer::Init()
 {
 	s_RenderData.flatColorShader = std::make_shared<Shader>("res/shaders/flatColorShader.vert", "res/shaders/flatColorShader.frag");
 	s_RenderData.phongLightningShader = std::make_shared<Shader>("res/shaders/phongLightning.vert", "res/shaders/phongLightning.frag");
+	s_RenderData.blinnPhongLightningShader = std::make_shared<Shader>("res/shaders/blinnPhongLightning.vert", "res/shaders/blinnPhongLightning.frag");
 
 	// Triangle data ================================================================================================
 	float verticesTriangle[] = {
@@ -157,6 +221,7 @@ void Renderer::Free()
 
 	s_RenderData.flatColorShader = nullptr;
 	s_RenderData.phongLightningShader = nullptr;
+	s_RenderData.blinnPhongLightningShader = nullptr;
 }
 
 void Renderer::BeginScene(const Scene& scene)
@@ -178,7 +243,7 @@ void Renderer::Clear()
 	HANDLE_ERROR(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 }
 
-void Renderer::DrawCustomShape(const std::unique_ptr<VertexArray>& va, const std::unique_ptr<Shader>& shader, const glm::mat4& modelMatrix)
+void Renderer::DrawCustomShape(const std::shared_ptr<VertexArray>& va, const std::shared_ptr<Shader>& shader, const glm::mat4& modelMatrix)
 {
 	va->Bind();
 	shader->Bind();
@@ -197,7 +262,7 @@ void Renderer::DrawCustomShape(const std::unique_ptr<VertexArray>& va, const std
 	}
 }
 
-void Renderer::DrawCustomShape(const std::unique_ptr<VertexArray>& va, const std::unique_ptr<Shader>& shader, const std::shared_ptr<Texture> texture, const glm::mat4& modelMatrix)
+void Renderer::DrawCustomShape(const std::shared_ptr<VertexArray>& va, const std::shared_ptr<Shader>& shader, const std::shared_ptr<Texture> texture, const glm::mat4& modelMatrix)
 {
 	texture->Bind();
 	DrawCustomShape(va, shader, modelMatrix);
@@ -217,6 +282,8 @@ void Renderer::DrawTriangle(const glm::mat4& transform, const glm::vec4& color)
 		BindFlatColorShader(transform, color, false, 0);
 	else if (s_Scene->GetLightMode() == LightMode::PHONG_LIGHTNING)
 		BindPhongLightningShader(transform, color, false, 0);
+	else if (s_Scene->GetLightMode() == LightMode::BLINN_PHONG_LIGHTNING)
+		BindBlinnPhongLightningShader(transform, color, false, 0);
 	
 	s_RenderData.triangleVA->Bind();
 
@@ -237,6 +304,8 @@ void Renderer::DrawTriangle(const glm::mat4& transform, std::shared_ptr<Texture>
 		BindFlatColorShader(transform, color, true, texture->GetScale());
 	else if (s_Scene->GetLightMode() == LightMode::PHONG_LIGHTNING)
 		BindPhongLightningShader(transform, color, true, texture->GetScale());
+	else if (s_Scene->GetLightMode() == LightMode::BLINN_PHONG_LIGHTNING)
+		BindBlinnPhongLightningShader(transform, color, true, texture->GetScale());
 
 	s_RenderData.triangleVA->Bind();
 
@@ -257,6 +326,8 @@ void Renderer::DrawQuad(const glm::mat4& transform, const glm::vec4& color)
 		BindFlatColorShader(transform, color, false, 0);
 	else if (s_Scene->GetLightMode() == LightMode::PHONG_LIGHTNING)
 		BindPhongLightningShader(transform, color, false, 0);
+	else if (s_Scene->GetLightMode() == LightMode::BLINN_PHONG_LIGHTNING)
+		BindBlinnPhongLightningShader(transform, color, false, 0);
 
 	s_RenderData.quadVA->Bind();
 
@@ -277,6 +348,8 @@ void Renderer::DrawQuad(const glm::mat4& transform, std::shared_ptr<Texture> tex
 		BindFlatColorShader(transform, color, true, texture->GetScale());
 	else if (s_Scene->GetLightMode() == LightMode::PHONG_LIGHTNING)
 		BindPhongLightningShader(transform, color, true, texture->GetScale());
+	else if (s_Scene->GetLightMode() == LightMode::BLINN_PHONG_LIGHTNING)
+		BindBlinnPhongLightningShader(transform, color, true, texture->GetScale());
 
 	s_RenderData.quadVA->Bind();
 
@@ -297,6 +370,8 @@ void Renderer::DrawCube(const glm::mat4& transform, const glm::vec4& color)
 		BindFlatColorShader(transform, color, false, 0);
 	else if (s_Scene->GetLightMode() == LightMode::PHONG_LIGHTNING)
 		BindPhongLightningShader(transform, color, false, 0);
+	else if (s_Scene->GetLightMode() == LightMode::BLINN_PHONG_LIGHTNING)
+		BindBlinnPhongLightningShader(transform, color, false, 0);
 
 	s_RenderData.cubeVA->Bind();
 
@@ -317,6 +392,8 @@ void Renderer::DrawCube(const glm::mat4& transform, std::shared_ptr<Texture> tex
 		BindFlatColorShader(transform, color, true, texture->GetScale());
 	else if (s_Scene->GetLightMode() == LightMode::PHONG_LIGHTNING)
 		BindPhongLightningShader(transform, color, true, texture->GetScale());
+	else if (s_Scene->GetLightMode() == LightMode::BLINN_PHONG_LIGHTNING)
+		BindBlinnPhongLightningShader(transform, color, true, texture->GetScale());
 
 	s_RenderData.cubeVA->Bind();
 

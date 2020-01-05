@@ -39,7 +39,12 @@ protected:
 
 private:
 
+	// Certainly not the best way to update camera's aspect ratio on window resize
+	static std::shared_ptr<PerspectiveCamera> s_CameraRef;
+	
 	GLFWwindow* InitWindow(int w, int h, bool useVSync);
+
+	static void OnWindowResize(GLFWwindow* window, int width, int height);
 
 public:
 

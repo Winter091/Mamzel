@@ -16,7 +16,7 @@ void Scene::SetLightning(LightMode lightning)
 	m_LightMode = lightning;
 }
 
-void Scene::AddLightSource(const glm::vec3& position)
+void Scene::AddPointLight(std::shared_ptr<Light> light)
 {
-	m_LightSources.push_back(position);
+	m_LightSources.push_back(light);
 }

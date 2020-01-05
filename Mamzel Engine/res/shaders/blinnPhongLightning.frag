@@ -59,8 +59,8 @@ void main()
 		vec3 diffuse = u_Light.diffuse * diff * u_Light.diffuseColor[i] * attenuation;
 
 		// Specular
-		vec3 reflectDir = reflect(-lightDir, norm);
-		float spec = pow(max(dot(reflectDir, viewDir), 0.0), 32);
+		vec3 halfwayDir = normalize(lightDir + viewDir);
+		float spec = pow(max(dot(norm, halfwayDir), 0.0), 32);
 		vec3 specular = u_Light.specular * spec * u_Light.specularColor[i] * attenuation;
 
 		result += (diffuse + specular);

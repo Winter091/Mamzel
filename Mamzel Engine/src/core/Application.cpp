@@ -6,9 +6,12 @@
 #include "../util/ErrorHandling.h"
 #include "../util/Input.h"
 
+std::shared_ptr<PerspectiveCamera> Application::s_CameraRef;
+
 Application::~Application()
 {
 	m_Camera = nullptr;
+	s_CameraRef = nullptr;
 	Renderer::Free();
 	TextureLibrary::Free();
 	glfwDestroyWindow(m_Window);
@@ -22,20 +25,22 @@ GLFWwindow* Application::InitWindow(int w, int h, bool useVSync)
 		glfwTerminate();
 	}
 
-	GLFWwindow* window = glfwCreateWindow(w, h, "OpenGL", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(w, h, "Mamzel Application", NULL, NULL);
 	if (!window)
 	{
 		std::cout << "Window Init Error\n";
 		glfwTerminate();
 	}
 
-	glfwSetWindowPos(window, 100, 100);
+	//glfwSetWindowPos(window, 100, 100);
 	glfwMakeContextCurrent(window);
 
 	if (useVSync)
 		glfwSwapInterval(1);
 	else
 		glfwSwapInterval(0);
+
+	glfwSetWindowSizeCallback(window, &Application::OnWindowResize);
 
 	if (glewInit() != GLEW_OK)
 	{
@@ -51,11 +56,19 @@ GLFWwindow* Application::InitWindow(int w, int h, bool useVSync)
 	return window;
 }
 
+void Application::OnWindowResize(GLFWwindow* window, int width, int height)
+{
+	glViewport(0, 0, width, height);
+	s_CameraRef->SetAspectRatio((float)width / height);
+}
+
 Application::Application(unsigned int windowWidth, unsigned int windowHeight, bool useVSync)
 {
 	m_Window = InitWindow(windowWidth, windowHeight, useVSync);
 	m_StartTime = std::chrono::high_resolution_clock::now();
+
 	m_Camera = std::make_shared<PerspectiveCamera>(windowWidth, windowHeight, 45.0f);
+	s_CameraRef = m_Camera;
 
 	Input::SetWindow(m_Window);
 	Renderer::Init();
