@@ -20,7 +20,7 @@ SandboxApp::SandboxApp()
 
 	m_VertexBuffer = std::make_shared<VertexBuffer>(vertices, sizeof(vertices));
 	m_VertexArray = std::make_shared<VertexArray>(m_VertexBuffer, layout);
-	m_Shader = std::make_shared<Shader>("res/shaders/fun/train.vert", "res/shaders/fun/train.frag");
+	m_Shader = std::make_shared<Shader>("res/shaders/fun/train.vert");
 }
 
 SandboxApp::~SandboxApp()

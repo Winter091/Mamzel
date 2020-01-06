@@ -5,6 +5,8 @@
 
 #include "../util/Input.h"
 
+#include "../debug/Instrumentor.h"
+
 void PerspectiveCamera::handleMouseMovement(GLFWwindow* window)
 {
 	double xPos, yPos;
@@ -75,7 +77,7 @@ void PerspectiveCamera::SetAspectRatio(float newAspectRatio)
 }
 
 void PerspectiveCamera::Update()
-{
+{	
 	//handleMouseMovement(window);
 
 	// Mouse emulation

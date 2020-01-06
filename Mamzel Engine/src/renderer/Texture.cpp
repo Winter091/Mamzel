@@ -12,7 +12,7 @@ Texture::Texture()
 }
 
 Texture::Texture(const char* path)
-{
+{	
 	m_Scale = 1.0f;
 	
 	int w, h, channels;
@@ -34,6 +34,7 @@ Texture::Texture(const char* path)
 	HANDLE_ERROR(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
 	HANDLE_ERROR(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
 
+	HANDLE_ERROR(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
 	HANDLE_ERROR(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, channels == 4 ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, data));
 	
 	stbi_image_free(data);

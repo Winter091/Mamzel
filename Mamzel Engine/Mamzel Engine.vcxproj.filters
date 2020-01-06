@@ -84,7 +84,7 @@
     <ClCompile Include="src\SandboxApp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\core\Light.cpp">
+    <ClCompile Include="src\core\PointLight.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -389,10 +389,6 @@
     <None Include="src\vendor\glm\gtx\wrap.inl">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="res\shaders\flatColorShader.vert" />
-    <None Include="res\shaders\flatColorShader.frag" />
-    <None Include="res\shaders\phongLightning.frag" />
-    <None Include="res\shaders\phongLightning.vert" />
     <None Include="res\shaders\fun\bouncingMaskChannels.frag" />
     <None Include="res\shaders\fun\vertexColored.frag" />
     <None Include="res\shaders\fun\vertexColored.vert" />
@@ -402,8 +398,8 @@
     <None Include="res\shaders\fun\mandelbrotSet.frag" />
     <None Include="res\shaders\fun\hsbSpinningCircle.frag" />
     <None Include="res\shaders\fun\hsbSpinningActualCircle.frag" />
-    <None Include="res\shaders\blinnPhongLightning.vert" />
-    <None Include="res\shaders\blinnPhongLightning.frag" />
+    <None Include="res\shaders\flatColor.glsl" />
+    <None Include="res\shaders\phongLightning.glsl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\renderer\VertexBuffer.h">
@@ -1129,7 +1125,10 @@
     <ClInclude Include="src\SandboxApp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\core\Light.h">
+    <ClInclude Include="src\core\PointLight.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\debug\Instrumentor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -7,7 +7,7 @@
 
 #include "../renderer/PerspectiveCamera.h"
 #include "../renderer/Shader.h"
-#include "Light.h"
+#include "PointLight.h"
 
 enum class LightMode
 {
@@ -20,7 +20,7 @@ class Scene
 {
 private:
 	std::shared_ptr<PerspectiveCamera> m_Camera;
-	std::vector<std::shared_ptr<Light>> m_LightSources;
+	std::vector<std::shared_ptr<PointLight>> m_LightSources;
 	LightMode m_LightMode;
 
 public:
@@ -28,9 +28,9 @@ public:
 
 	void SetCamera(std::shared_ptr<PerspectiveCamera> camera);
 	void SetLightning(LightMode lightning);
-	void AddPointLight(std::shared_ptr<Light> light);
+	void AddPointLight(std::shared_ptr<PointLight> light);
 
 	inline std::shared_ptr<PerspectiveCamera> GetCamera() const { return m_Camera; }
 	inline LightMode GetLightMode() const { return m_LightMode; }
-	inline const std::vector<std::shared_ptr<Light> >& GetLightSources() const { return m_LightSources; }
+	inline const std::vector<std::shared_ptr<PointLight> >& GetLightSources() const { return m_LightSources; }
 };

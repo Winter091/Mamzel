@@ -18,7 +18,7 @@ Application::~Application()
 }
 
 GLFWwindow* Application::InitWindow(int w, int h, bool useVSync)
-{
+{	
 	if (!glfwInit())
 	{
 		std::cout << "GLFW Init error\n";
@@ -63,7 +63,7 @@ void Application::OnWindowResize(GLFWwindow* window, int width, int height)
 }
 
 Application::Application(unsigned int windowWidth, unsigned int windowHeight, bool useVSync)
-{
+{	
 	m_Window = InitWindow(windowWidth, windowHeight, useVSync);
 	m_StartTime = std::chrono::high_resolution_clock::now();
 
@@ -83,7 +83,7 @@ Application::Application(unsigned int windowWidth, unsigned int windowHeight, bo
 void Application::Run()
 {
 	while (!glfwWindowShouldClose(m_Window))
-	{
+	{		
 		glfwPollEvents();
 
 		auto currTime = std::chrono::high_resolution_clock::now();

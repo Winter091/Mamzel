@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <deque>
 
 #include "core/Application.h"
 

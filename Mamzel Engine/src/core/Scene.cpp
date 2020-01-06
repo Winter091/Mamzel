@@ -16,7 +16,7 @@ void Scene::SetLightning(LightMode lightning)
 	m_LightMode = lightning;
 }
 
-void Scene::AddPointLight(std::shared_ptr<Light> light)
+void Scene::AddPointLight(std::shared_ptr<PointLight> light)
 {
 	m_LightSources.push_back(light);
 }

@@ -30,7 +30,7 @@ MinecraftScene::~MinecraftScene()
 }
 
 void MinecraftScene::DrawGui()
-{
+{	
 	ImGui::Begin("Gui");
 	ImGui::Text("Frame takes %.3f ms. (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
@@ -67,11 +67,12 @@ void MinecraftScene::DrawOpenGL()
 	Scene scene;
 	scene.SetCamera(m_Camera);
 
-	std::shared_ptr<Light> lamp1 = std::make_shared<Light>(lamp1Position, lamp1Range);
-	std::shared_ptr<Light> lamp2 = std::make_shared<Light>(lamp2Position, lamp2Range);
-	std::shared_ptr<Light> moon  = std::make_shared<Light>(moonPosition, moonRange);
+	std::shared_ptr<PointLight> lamp1 = std::make_shared<PointLight>(lamp1Position, lamp1Range);
+	std::shared_ptr<PointLight> lamp2 = std::make_shared<PointLight>(lamp2Position, lamp2Range);
+	std::shared_ptr<PointLight> moon  = std::make_shared<PointLight>(moonPosition, moonRange);
 
 	lamp1->SetDiffuseColor({ 1.0, 0.0, 0.0 });
+	lamp1->SetSpecularColor({ 0.0, 0.0, 1.0 });
 
 	scene.AddPointLight(lamp1);
 	scene.AddPointLight(lamp2);

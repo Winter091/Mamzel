@@ -6,6 +6,13 @@
 #include <fstream>
 #include <iostream>
 
+enum class ShaderType
+{
+	NONE = 0,
+	VERTEX_SHADER,
+	FRAGMENT_SHADER
+};
+
 int Shader::getUnifromLocation(const char* name)
 {
 	if (this->m_Uniforms.find(name) == this->m_Uniforms.end())
@@ -32,10 +39,10 @@ void Shader::CheckCompileStatus(int id)
 	}
 }
 
-std::string Shader::ParseSource(const char* path)
+ShaderSources Shader::ParseSources(const char* path)
 {
 	std::ifstream file(path);
-	std::string line, code;
+	std::string line, vertexCode, fragmentCode;
 
 	if (!file)
 	{
@@ -43,18 +50,31 @@ std::string Shader::ParseSource(const char* path)
 		exit(0);
 	}
 
-	while (getline(file, line))
-		code += line + '\n';
+	ShaderType currShader = ShaderType::NONE;
 
-	return code;
+	while (getline(file, line))
+	{
+		if (line.find("#VERTEX SHADER") != std::string::npos)
+			currShader = ShaderType::VERTEX_SHADER;
+		else if (line.find("#FRAGMENT SHADER") != std::string::npos)
+			currShader = ShaderType::FRAGMENT_SHADER;
+		else
+		{
+			switch (currShader)
+			{
+				case ShaderType::VERTEX_SHADER: vertexCode += line + '\n'; break;
+				case ShaderType::FRAGMENT_SHADER: fragmentCode += line + '\n'; break;
+			}
+		}
+	}
+
+	return { vertexCode, fragmentCode };
 }
 
-int Shader::CreateShader(int type, const char* path)
+int Shader::CreateShader(int type, const char* sourceCode)
 {
 	int id = glCreateShader(type);
-	std::string sourceCode = this->ParseSource(path);
-	const char* source = sourceCode.c_str();
-	glShaderSource(id, 1, &source, nullptr);
+	glShaderSource(id, 1, &sourceCode, nullptr);
 	glCompileShader(id);
 	this->CheckCompileStatus(id);
 	return id;
@@ -65,22 +85,24 @@ Shader::Shader()
 {
 }
 
-Shader::Shader(const char* vertexPath, const char* fragmentPath)
+Shader::Shader(const char* path)
 {
-	int vertexShaderID = this->CreateShader(GL_VERTEX_SHADER, vertexPath);
-	int fragmentShaderID = this->CreateShader(GL_FRAGMENT_SHADER, fragmentPath);
+	ShaderSources src = this->ParseSources(path);
+	
+	int vertexShaderID = this->CreateShader(GL_VERTEX_SHADER, src.vertexSrc.c_str());
+	int fragmentShaderID = this->CreateShader(GL_FRAGMENT_SHADER, src.fragmentSrc.c_str());
 
 	this->m_ShaderProgramID = glCreateProgram();
-	glAttachShader(m_ShaderProgramID, vertexShaderID);
-	glAttachShader(m_ShaderProgramID, fragmentShaderID);
-	glLinkProgram(m_ShaderProgramID);
-	glValidateProgram(m_ShaderProgramID);
+	HANDLE_ERROR(glAttachShader(m_ShaderProgramID, vertexShaderID));
+	HANDLE_ERROR(glAttachShader(m_ShaderProgramID, fragmentShaderID));
+	HANDLE_ERROR(glLinkProgram(m_ShaderProgramID));
+	HANDLE_ERROR(glValidateProgram(m_ShaderProgramID));
 
-	glDetachShader(m_ShaderProgramID, vertexShaderID);
-	glDetachShader(m_ShaderProgramID, fragmentShaderID);
+	HANDLE_ERROR(glDetachShader(m_ShaderProgramID, vertexShaderID));
+	HANDLE_ERROR(glDetachShader(m_ShaderProgramID, fragmentShaderID));
 
-	glDeleteShader(vertexShaderID);
-	glDeleteShader(fragmentShaderID);
+	HANDLE_ERROR(glDeleteShader(vertexShaderID));
+	HANDLE_ERROR(glDeleteShader(fragmentShaderID));
 }
 
 Shader::~Shader()

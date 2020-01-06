@@ -2,8 +2,7 @@
 
 #include "glm/glm.hpp"
 
-// Point light
-class Light
+class PointLight
 {
 private:
 	float m_Range;
@@ -15,10 +14,10 @@ private:
 	glm::vec3 m_SpecularColor;
 
 public:
-	Light();
-	Light(const glm::vec3& position);
-	Light(const glm::vec3& position, const float range);
-	~Light();
+	PointLight();
+	PointLight(const glm::vec3& position);
+	PointLight(const glm::vec3& position, const float range);
+	~PointLight();
 
 	void SetRange(float newRange);
 	void SetDiffuseColor(const glm::vec3& color);

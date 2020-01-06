@@ -25,7 +25,6 @@ struct rendererData_t
 
 	std::shared_ptr<Shader> flatColorShader;
 	std::shared_ptr<Shader> phongLightningShader;
-	std::shared_ptr<Shader> blinnPhongLightningShader;
 };
 
 class Renderer
@@ -36,8 +35,7 @@ private:
 
 private:
 	static void BindFlatColorShader(const glm::mat4& transform, const glm::vec4& color, bool useTexture, float textureScale);
-	static void BindPhongLightningShader(const glm::mat4& transform, const glm::vec4& color, bool useTexture, float textureScale);
-	static void BindBlinnPhongLightningShader(const glm::mat4& transform, const glm::vec4& color, bool useTexture, float textureScale);
+	static void BindPhongLightningShader(const glm::mat4& transform, const glm::vec4& color, bool useTexture, float textureScale, bool useBlinn);
 
 public:
 

@@ -7,6 +7,12 @@
 #include "../vendor/glm/gtc/matrix_transform.hpp"
 #include "../vendor/glm/gtc/type_ptr.hpp"
 
+struct ShaderSources
+{
+	std::string vertexSrc;
+	std::string fragmentSrc;
+};
+
 class Shader
 {
 private:
@@ -15,12 +21,12 @@ private:
 
 	int getUnifromLocation(const char* name);
 	void CheckCompileStatus(int id);
-	std::string ParseSource(const char* path);
-	int CreateShader(int type, const char* path);
+	ShaderSources ParseSources(const char* path);
+	int CreateShader(int type, const char* sourceCode);
 
 public:
 	Shader();
-	Shader(const char* vertexPath, const char* fragmentPath);
+	Shader(const char* path);
 	~Shader();
 
 	void Bind() const;
