@@ -28,14 +28,16 @@ Texture::Texture(const char* path)
 	HANDLE_ERROR(glGenTextures(1, &m_TextureID));
 	Bind();
 
+	HANDLE_ERROR(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
+	HANDLE_ERROR(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, channels == 4 ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, data));
+
+	HANDLE_ERROR(glGenerateMipmap(GL_TEXTURE_2D));
+
 	// Initial parameters
 	HANDLE_ERROR(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
 	HANDLE_ERROR(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
 	HANDLE_ERROR(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
 	HANDLE_ERROR(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
-
-	HANDLE_ERROR(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
-	HANDLE_ERROR(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, channels == 4 ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, data));
 	
 	stbi_image_free(data);
 }
@@ -49,13 +51,13 @@ std::shared_ptr<Texture> Texture::CreateTexture(const char* path)
 	return std::make_shared<Texture>(path);
 }
 
-void Texture::SetWrapAndFilterMode(int wrapMode, int filterMode)
+void Texture::SetWrapAndFilterMode(int wrapMode, int filterModeMin, int filterModeMag)
 {
 	Bind();
 	HANDLE_ERROR(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapMode));
 	HANDLE_ERROR(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapMode));
-	HANDLE_ERROR(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filterMode));
-	HANDLE_ERROR(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filterMode));
+	HANDLE_ERROR(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filterModeMin));
+	HANDLE_ERROR(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filterModeMag));
 }
 
 void Texture::SetScale(float scale)

@@ -51,7 +51,7 @@ PerspectiveCamera::PerspectiveCamera(float windowWidth, float windowHeight, floa
 	m_FOV = fov;
 	m_AspectRatio = windowWidth / windowHeight;
 
-	m_ProjectionMatrix = glm::perspective(glm::radians(fov), windowWidth / windowHeight, 0.01f, 250.0f);
+	m_ProjectionMatrix = glm::perspective(glm::radians(fov), windowWidth / windowHeight, 0.01f, 500.0f);
 	m_ViewMatrix = glm::lookAt(m_Position, m_Position + m_Front, m_Up);
 	m_ViewProjectionMatrix = m_ProjectionMatrix * m_ViewMatrix;
 }
@@ -76,20 +76,20 @@ void PerspectiveCamera::SetAspectRatio(float newAspectRatio)
 	m_AspectRatio = newAspectRatio;
 }
 
-void PerspectiveCamera::Update()
+void PerspectiveCamera::Update(float frameTime)
 {	
 	//handleMouseMovement(window);
 
 	// Mouse emulation
 	{
 		if (Input::KeyPressed(GLFW_KEY_LEFT))
-			m_Yaw -= m_MouseSens * m_FOV / 45.0f;
+			m_Yaw -= m_MouseSens * m_FOV / 45.0f * frameTime;
 		if (Input::KeyPressed(GLFW_KEY_RIGHT))
-			m_Yaw += m_MouseSens * m_FOV / 45.0f;
+			m_Yaw += m_MouseSens * m_FOV / 45.0f * frameTime;
 		if (Input::KeyPressed(GLFW_KEY_UP))
-			m_Pitch += m_MouseSens * m_FOV / 45.0f;
+			m_Pitch += m_MouseSens * m_FOV / 45.0f * frameTime;
 		if (Input::KeyPressed(GLFW_KEY_DOWN))
-			m_Pitch -= m_MouseSens * m_FOV / 45.0f;
+			m_Pitch -= m_MouseSens * m_FOV / 45.0f * frameTime;
 
 		if (m_Pitch > 89.0f)
 			m_Pitch = 89.0f;
@@ -111,39 +111,35 @@ void PerspectiveCamera::Update()
 	// Mouse scroll emulation
 	{
 		if (Input::KeyPressed(GLFW_KEY_PAGE_UP))
-			m_FOV -= 0.5;
+			m_FOV -= 0.05 * frameTime;
 		if (Input::KeyPressed(GLFW_KEY_PAGE_DOWN))
-			m_FOV += 0.5;
+			m_FOV += 0.05 * frameTime;
 
 		if (m_FOV < 0.5f)
 			m_FOV = 0.5f;
 		if (m_FOV > 150.0f)
 			m_FOV = 150.0f;
 
-		m_ProjectionMatrix = glm::perspective(glm::radians(m_FOV), m_AspectRatio, 0.01f, 250.0f);
+		m_ProjectionMatrix = glm::perspective(glm::radians(m_FOV), m_AspectRatio, 0.01f, 500.0f);
 	}
 	
 	// Movement
 	{
 		if (Input::KeyPressed(GLFW_KEY_W))
-			m_Position += m_Front * m_Speed;
+			m_Position += m_Front * m_Speed * frameTime;
 		if (Input::KeyPressed(GLFW_KEY_S))
-			m_Position -= m_Front * m_Speed;
+			m_Position -= m_Front * m_Speed * frameTime;
 		if (Input::KeyPressed(GLFW_KEY_A))
-			m_Position -= glm::normalize(glm::cross(m_Front, m_Up)) * m_Speed;
+			m_Position -= glm::normalize(glm::cross(m_Front, m_Up)) * m_Speed * frameTime;
 		if (Input::KeyPressed(GLFW_KEY_D))
-			m_Position += glm::normalize(glm::cross(m_Front, m_Up)) * m_Speed;
+			m_Position += glm::normalize(glm::cross(m_Front, m_Up)) * m_Speed * frameTime;
 		if (Input::KeyPressed(GLFW_KEY_LEFT_SHIFT))
-			m_Position += m_Up * m_Speed;
+			m_Position += m_Up * m_Speed * frameTime;
 		if (Input::KeyPressed(GLFW_KEY_LEFT_CONTROL))
-			m_Position -= m_Up * m_Speed;
+			m_Position -= m_Up * m_Speed * frameTime;
 	}
-}
 
-glm::mat4& PerspectiveCamera::GetMatrixVP()
-{
 	m_ViewMatrix = glm::lookAt(m_Position, m_Position + m_Front, m_Up);
 	m_ViewProjectionMatrix = m_ProjectionMatrix * m_ViewMatrix;
-	return m_ViewProjectionMatrix;
 }
 

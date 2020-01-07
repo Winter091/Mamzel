@@ -11,8 +11,9 @@ private:
 	void DrawOpenGL();
 	void DrawGui();
 
-	const char* m_CurrentLightning = "Flat Color";
+	const char* m_CurrentLightning = "Phong";
 	float lamp1Range, lamp2Range, moonRange;
+	std::vector<float> m_FrameTimes;
 
 public:
 	MinecraftScene();

@@ -3,10 +3,10 @@
 #include <iostream>
 
 MinecraftScene::MinecraftScene()
-	: Application(1600, 900, true)
+	: Application(1600, 900, false)
 {
 	m_Camera->SetPosition(glm::vec3(0.0f, 0.0f, 4.0f));
-	m_Camera->SetMoveSpeedAndMouseSens(0.1f, 1.0f);
+	m_Camera->SetMoveSpeedAndMouseSens(0.008f, 0.08f);
 
 	TextureLibrary::Load("grass", "res/textures/grass.png");
 	TextureLibrary::Load("oak_planks", "res/textures/planks_oak.png");
@@ -17,10 +17,10 @@ MinecraftScene::MinecraftScene()
 	TextureLibrary::Load("moon", "res/textures/moon_cut.png");
 	TextureLibrary::Load("stars", "res/textures/stars.png");
 
-	TextureLibrary::SetWrapAndFilterMode("grass", GL_REPEAT, GL_NEAREST);
+	TextureLibrary::SetWrapAndFilterMode("grass", GL_REPEAT, GL_NEAREST_MIPMAP_NEAREST, GL_NEAREST);
 	TextureLibrary::SetScale("grass", 100.0f);
 
-	TextureLibrary::SetWrapAndFilterMode("stars", GL_REPEAT, GL_NEAREST);
+	TextureLibrary::SetWrapAndFilterMode("stars", GL_REPEAT, GL_NEAREST_MIPMAP_NEAREST, GL_LINEAR);
 	TextureLibrary::SetScale("stars", 5.0f);
 }
 
@@ -34,16 +34,25 @@ void MinecraftScene::DrawGui()
 	ImGui::Begin("Gui");
 	ImGui::Text("Frame takes %.3f ms. (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
+	if (m_FrameTimes.size() < 200)
+		m_FrameTimes.push_back(1000.0f / ImGui::GetIO().Framerate);
+	else
+	{
+		std::rotate(m_FrameTimes.begin(), m_FrameTimes.begin() + 1, m_FrameTimes.end());
+		m_FrameTimes[m_FrameTimes.size() - 1] = 1000.0f / ImGui::GetIO().Framerate;
+	}
+	ImGui::PlotLines("Frame Times", m_FrameTimes.data(), m_FrameTimes.size());
+		
 	static const char* items[] = { "Flat Color", "Phong", "Blinn-Phong" };
-	if (ImGui::BeginCombo("Lightning", m_CurrentLightning)) // The second parameter is the label previewed before opening the combo.
+	if (ImGui::BeginCombo("Lightning", m_CurrentLightning))
 	{
 		for (int n = 0; n < 3; n++)
 		{
-			bool is_selected = (m_CurrentLightning == items[n]); // You can store your selection however you want, outside or inside your objects
+			bool is_selected = (m_CurrentLightning == items[n]); 
 			if (ImGui::Selectable(items[n], is_selected))
 				m_CurrentLightning = items[n];
 			if (is_selected)
-				ImGui::SetItemDefaultFocus();   // You may set the initial focus when opening the combo (scrolling + for keyboard navigation support)
+				ImGui::SetItemDefaultFocus();   
 		}
 		ImGui::EndCombo();
 	}
@@ -67,13 +76,14 @@ void MinecraftScene::DrawOpenGL()
 	Scene scene;
 	scene.SetCamera(m_Camera);
 
-	std::shared_ptr<PointLight> lamp1 = std::make_shared<PointLight>(lamp1Position, lamp1Range);
-	std::shared_ptr<PointLight> lamp2 = std::make_shared<PointLight>(lamp2Position, lamp2Range);
-	std::shared_ptr<PointLight> moon  = std::make_shared<PointLight>(moonPosition, moonRange);
+	std::shared_ptr<Light> lamp1 = std::make_shared<Light>(lamp1Position, lamp1Range);
+	std::shared_ptr<Light> lamp2 = std::make_shared<Light>(lamp2Position, lamp2Range);
+	std::shared_ptr<Light> moon  = std::make_shared<Light>(moonPosition, moonRange);
 
 	lamp1->SetDiffuseColor({ 1.0, 0.0, 0.0 });
-	lamp1->SetSpecularColor({ 0.0, 0.0, 1.0 });
+	lamp1->SetSpecularColor({ 0.0, 1.0, 1.0 });
 
+	scene.SetGlobalLight({ 1.0, -1.0, 0.0 }, 1.0, { 0.0, 1.0, 1.0 }, { 1.0, 0.0, 0.0 });
 	scene.AddPointLight(lamp1);
 	scene.AddPointLight(lamp2);
 	scene.AddPointLight(moon);

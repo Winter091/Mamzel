@@ -15,7 +15,7 @@ public:
 
 	static std::shared_ptr<Texture> CreateTexture(const char* path);
 
-	void SetWrapAndFilterMode(int wrapMode, int filterMode);
+	void SetWrapAndFilterMode(int wrapMode, int filterModeMin, int filterModeMag);
 	void SetScale(float scale);
 
 	inline float GetScale() const { return m_Scale; }

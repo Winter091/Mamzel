@@ -31,11 +31,12 @@ class Renderer
 {
 private:
 	static std::shared_ptr<Scene> s_Scene;
+	static std::shared_ptr<Shader> s_CurrShader;
 	static rendererData_t s_RenderData;
 
 private:
-	static void BindFlatColorShader(const glm::mat4& transform, const glm::vec4& color, bool useTexture, float textureScale);
-	static void BindPhongLightningShader(const glm::mat4& transform, const glm::vec4& color, bool useTexture, float textureScale, bool useBlinn);
+	static void BindPhongLightningShader();
+	static void SendMatrixAndTexture(const glm::mat4& transform, const glm::vec4& color, bool useTexture, float textureScale);
 
 public:
 

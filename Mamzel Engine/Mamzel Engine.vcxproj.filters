@@ -84,7 +84,7 @@
     <ClCompile Include="src\SandboxApp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\core\PointLight.cpp">
+    <ClCompile Include="src\core\Light.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1125,10 +1125,10 @@
     <ClInclude Include="src\SandboxApp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\core\PointLight.h">
+    <ClInclude Include="src\debug\Instrumentor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\debug\Instrumentor.h">
+    <ClInclude Include="src\core\Light.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -29,8 +29,8 @@ protected:
 
 	GLFWwindow* m_Window;
 
-	std::chrono::time_point<std::chrono::steady_clock> m_StartTime;
-	float m_Time;
+	std::chrono::time_point<std::chrono::steady_clock> m_StartTime, m_LastTime;
+	float m_TimeSinceStart, m_FrameTime;
 
 	std::shared_ptr<PerspectiveCamera> m_Camera;
 

@@ -66,6 +66,7 @@ Application::Application(unsigned int windowWidth, unsigned int windowHeight, bo
 {	
 	m_Window = InitWindow(windowWidth, windowHeight, useVSync);
 	m_StartTime = std::chrono::high_resolution_clock::now();
+	m_LastTime = m_StartTime;
 
 	m_Camera = std::make_shared<PerspectiveCamera>(windowWidth, windowHeight, 45.0f);
 	s_CameraRef = m_Camera;
@@ -87,14 +88,16 @@ void Application::Run()
 		glfwPollEvents();
 
 		auto currTime = std::chrono::high_resolution_clock::now();
-		m_Time = std::chrono::duration_cast<std::chrono::milliseconds>(currTime - m_StartTime).count() / 1000.0f;
+		m_FrameTime = std::chrono::duration_cast<std::chrono::microseconds>(currTime - m_LastTime).count() / 1000.0f;
+		m_TimeSinceStart = std::chrono::duration_cast<std::chrono::microseconds>(currTime - m_StartTime).count() / 1000.0f;
+		m_LastTime = currTime;
 
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 		DrawGui();
 
-		m_Camera->Update();
+		m_Camera->Update(m_FrameTime);
 
 		DrawOpenGL();
 

@@ -34,8 +34,8 @@ public:
 	void SetMoveSpeedAndMouseSens(float moveSpeed, float mouseSens);
 	void SetAspectRatio(float newAspectRatio);
 
-	void Update();
+	void Update(float frameTime);
 
-	glm::mat4& GetMatrixVP();
+	inline const glm::mat4& GetMatrixVP() const { return m_ViewProjectionMatrix; }
 	inline const glm::vec3& GetPosition() const { return m_Position; }
 };

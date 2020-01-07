@@ -25,7 +25,7 @@ std::shared_ptr<Texture> TextureLibrary::Get(const char* name)
 	exit(0);
 }
 
-void TextureLibrary::SetWrapAndFilterMode(const char* name, int wrapMode, int filterMode)
+void TextureLibrary::SetWrapAndFilterMode(const char* name, int wrapMode, int filterModeMin, int filterModeMag)
 {
 	if (s_Textures.find(name) == s_Textures.end())
 	{
@@ -33,7 +33,7 @@ void TextureLibrary::SetWrapAndFilterMode(const char* name, int wrapMode, int fi
 		exit(0);
 	}
 
-	s_Textures[name]->SetWrapAndFilterMode(wrapMode, filterMode);
+	s_Textures[name]->SetWrapAndFilterMode(wrapMode, filterModeMin, filterModeMag);
 }
 
 void TextureLibrary::SetScale(const char* name, float newScale)

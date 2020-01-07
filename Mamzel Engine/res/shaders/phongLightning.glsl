@@ -58,10 +58,19 @@ uniform struct Light
 	vec3 specularColor[32];
 } u_Light;
 
+uniform struct GlobalLight
+{
+	vec3 direction;
+	vec3 diffuseColor;
+	vec3 specularColor;
+	float intensity;
+} u_GlobalLight;
+
 uniform vec3 u_ObjectColor;
 uniform vec3 u_CameraPos;
 
 uniform int u_UseBlinn;
+uniform int u_UseGlobalLight;
 
 uniform int u_UseTexture;
 uniform sampler2D u_TextureSampler;
@@ -98,6 +107,7 @@ void main()
 
 	vec3 diffuse, specular;
 
+	// Point lights
 	for (int i = 0; i < u_Light.count; i++)
 	{	
 		float distFormLight = length(u_Light.positions[i] - vOut.fragPos);
@@ -111,6 +121,19 @@ void main()
 			specular = Phong(lightDir, norm, viewDir) * u_Light.specular * u_Light.specularColor[i] * attenuation;
 		else
 			specular = Blinn(lightDir, norm, viewDir) * u_Light.specular * u_Light.specularColor[i] * attenuation;
+
+		result += (diffuse + specular);
+	}
+
+	// Global light
+	if (u_UseGlobalLight == 1)
+	{
+		diffuse = Diffuse(-u_GlobalLight.direction, norm) * u_GlobalLight.intensity * u_GlobalLight.diffuseColor;
+
+		if (u_UseBlinn == 0)
+			specular = Phong(-u_GlobalLight.direction, norm, viewDir) * u_GlobalLight.intensity * u_GlobalLight.specularColor;
+		else
+			specular = Blinn(-u_GlobalLight.direction, norm, viewDir) * u_GlobalLight.intensity * u_GlobalLight.specularColor;
 
 		result += (diffuse + specular);
 	}

@@ -2,7 +2,7 @@
 
 #include "glm/glm.hpp"
 
-class PointLight
+class Light
 {
 private:
 	float m_Range;
@@ -14,16 +14,17 @@ private:
 	glm::vec3 m_SpecularColor;
 
 public:
-	PointLight();
-	PointLight(const glm::vec3& position);
-	PointLight(const glm::vec3& position, const float range);
-	~PointLight();
+	Light();
+	Light(const glm::vec3& position);
+	Light(const glm::vec3& position, const float range);
+	~Light();
 
 	void SetRange(float newRange);
 	void SetDiffuseColor(const glm::vec3& color);
 	void SetSpecularColor(const glm::vec3& color);
 
 	inline const glm::vec3& GetPosition() const { return m_Position; }
+	inline const float GetRange() const { return m_Range; }
 	inline const glm::vec3& GetAttenuation() const { return m_Attenuation; }
 	inline const glm::vec3& GetDiffuseColor() const { return m_DiffuseColor; }
 	inline const glm::vec3& GetSpecularColor() const { return m_SpecularColor; }

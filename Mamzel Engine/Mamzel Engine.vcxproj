@@ -20,7 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\core\Application.cpp" />
-    <ClCompile Include="src\core\PointLight.cpp" />
+    <ClCompile Include="src\core\Light.cpp" />
     <ClCompile Include="src\core\Scene.cpp" />
     <ClCompile Include="src\core\TextureLibrary.cpp" />
     <ClCompile Include="src\renderer\Renderer.cpp" />
@@ -159,7 +159,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\core\Application.h" />
-    <ClInclude Include="src\core\PointLight.h" />
+    <ClInclude Include="src\core\Light.h" />
     <ClInclude Include="src\core\Scene.h" />
     <ClInclude Include="src\core\TextureLibrary.h" />
     <ClInclude Include="src\debug\Instrumentor.h" />
@@ -541,6 +541,10 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>src\vendor;$(SolutionDir)Dependencies\GLFW\include\;$(SolutionDir)Dependencies\GLEW\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -564,6 +568,10 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>src\vendor;$(SolutionDir)Dependencies\GLFW\include\;$(SolutionDir)Dependencies\GLEW\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

@@ -20,6 +20,6 @@ public:
 	static void Load(const char* textureName, const char* path);
 	static std::shared_ptr<Texture> Get(const char* textureName);
 
-	static void SetWrapAndFilterMode(const char* textureName, int wrapMode, int filterMode);
+	static void SetWrapAndFilterMode(const char* name, int wrapMode, int filterModeMin, int filterModeMag);
 	static void SetScale(const char* textureName, float newScale);
 };

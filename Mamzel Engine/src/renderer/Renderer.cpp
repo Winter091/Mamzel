@@ -6,30 +6,43 @@
 // Static variables init
 rendererData_t Renderer::s_RenderData;
 std::shared_ptr<Scene> Renderer::s_Scene;
+std::shared_ptr<Shader> Renderer::s_CurrShader;
 
-void Renderer::BindFlatColorShader(const glm::mat4& transform, const glm::vec4& color, bool useTexture, float textureScale)
-{
-	s_RenderData.flatColorShader->Bind();
-	s_RenderData.flatColorShader->SetUniform("u_MatrixMVP", s_Scene->GetCamera()->GetMatrixVP() * transform);
-	s_RenderData.flatColorShader->SetUniform("u_Color", color.x, color.y, color.z, color.w);
 
-	s_RenderData.flatColorShader->SetUniform("u_TextureScale", textureScale);
-	s_RenderData.flatColorShader->SetUniform("u_UseTexture", (int)useTexture);
-	s_RenderData.flatColorShader->SetUniform("u_TexureSampler", 0);
-}
-
-void Renderer::BindPhongLightningShader(const glm::mat4& transform, const glm::vec4& color, bool useTexture, float textureScale, bool useBlinn)
+void Renderer::BindPhongLightningShader()
 {
 	s_RenderData.phongLightningShader->Bind();
 
-	s_RenderData.phongLightningShader->SetUniform("u_Light.ambient", 0.1f);
+	s_RenderData.phongLightningShader->SetUniform("u_CameraPos", s_Scene->GetCamera()->GetPosition());
+
+	int useBlinn = (s_Scene->GetLightMode() == LightMode::BLINN_PHONG_LIGHTNING ? 1 : 0);
+	s_RenderData.phongLightningShader->SetUniform("u_UseBlinn", useBlinn);
+
+	// Global light
+	std::shared_ptr<Light> globalLight = s_Scene->GetGlobalLight();
+	if (globalLight == nullptr)
+	{
+		s_RenderData.phongLightningShader->SetUniform("u_UseGlobalLight", 0);
+	}
+	else
+	{
+		s_RenderData.phongLightningShader->SetUniform("u_UseGlobalLight", 1);
+
+		s_RenderData.phongLightningShader->SetUniform("u_GlobalLight.direction", globalLight->GetPosition());
+		s_RenderData.phongLightningShader->SetUniform("u_GlobalLight.diffuseColor", globalLight->GetDiffuseColor());
+		s_RenderData.phongLightningShader->SetUniform("u_GlobalLight.specularColor", globalLight->GetSpecularColor());
+		s_RenderData.phongLightningShader->SetUniform("u_GlobalLight.intensity", globalLight->GetRange());
+	}
+
+	// Point Lights
+	s_RenderData.phongLightningShader->SetUniform("u_Light.ambient", 0.0f);
 	s_RenderData.phongLightningShader->SetUniform("u_Light.diffuse", 1.0f);
 	s_RenderData.phongLightningShader->SetUniform("u_Light.specular", 0.5f);
 
-	s_RenderData.phongLightningShader->SetUniform("u_Light.count", (int)s_Scene->GetLightSources().size());
-	for (int i = 0; i < s_Scene->GetLightSources().size(); i++)
+	s_RenderData.phongLightningShader->SetUniform("u_Light.count", (int)s_Scene->GetPointLights().size());
+	for (int i = 0; i < s_Scene->GetPointLights().size(); i++)
 	{
-		std::shared_ptr<PointLight> light = s_Scene->GetLightSources()[i];
+		std::shared_ptr<Light> light = s_Scene->GetPointLights()[i];
 		std::string index = std::to_string(i);
 		const glm::vec3& lightAttenuation = light->GetAttenuation();
 
@@ -51,18 +64,22 @@ void Renderer::BindPhongLightningShader(const glm::mat4& transform, const glm::v
 		name = "u_Light.quadratic[" + index + "]";
 		s_RenderData.phongLightningShader->SetUniform(name.c_str(), lightAttenuation.z);
 	}
+}
 
-	s_RenderData.phongLightningShader->SetUniform("u_MatrixMVP", s_Scene->GetCamera()->GetMatrixVP() * transform);
-	s_RenderData.phongLightningShader->SetUniform("u_ObjectTransform", transform);
+void Renderer::SendMatrixAndTexture(const glm::mat4& transform, const glm::vec4& color, bool useTexture, float textureScale)
+{
+	s_CurrShader->Bind();
 
-	s_RenderData.phongLightningShader->SetUniform("u_ObjectColor", color.x, color.y, color.z);
-	s_RenderData.phongLightningShader->SetUniform("u_CameraPos", s_Scene->GetCamera()->GetPosition());
+	if (s_Scene->GetLightMode() != LightMode::FLAT_COLOR)
+		s_CurrShader->SetUniform("u_ObjectTransform", transform);
 
-	s_RenderData.phongLightningShader->SetUniform("u_UseBlinn", (int)useBlinn);
+	s_CurrShader->SetUniform("u_MatrixMVP", s_Scene->GetCamera()->GetMatrixVP() * transform);
 
-	s_RenderData.phongLightningShader->SetUniform("u_TextureScale", textureScale);
-	s_RenderData.phongLightningShader->SetUniform("u_UseTexture", (int)useTexture);
-	s_RenderData.phongLightningShader->SetUniform("u_TextureSampler", 0);
+	s_CurrShader->SetUniform("u_ObjectColor", color.x, color.y, color.z);
+
+	s_CurrShader->SetUniform("u_UseTexture", (int)useTexture);
+	s_CurrShader->SetUniform("u_TextureScale", textureScale);
+	s_CurrShader->SetUniform("u_TextureSampler", 0);
 }
 
 void Renderer::Init()
@@ -164,6 +181,9 @@ void Renderer::Init()
 
 void Renderer::Free()
 {
+	s_Scene = nullptr;
+	s_CurrShader = nullptr;
+	
 	s_RenderData.triangleVB = nullptr;
 	s_RenderData.triangleIB = nullptr;
 	s_RenderData.triangleVA = nullptr;
@@ -182,6 +202,23 @@ void Renderer::Free()
 void Renderer::BeginScene(const Scene& scene)
 {
 	s_Scene = std::make_shared<Scene>(scene);
+
+	LightMode light = s_Scene->GetLightMode();
+
+	if (light == LightMode::FLAT_COLOR)
+	{
+		s_CurrShader = s_RenderData.flatColorShader;
+	}
+	else if (light == LightMode::PHONG_LIGHTNING)
+	{
+		s_CurrShader = s_RenderData.phongLightningShader;
+		BindPhongLightningShader();
+	}
+	else if (light == LightMode::BLINN_PHONG_LIGHTNING)
+	{
+		s_CurrShader = s_RenderData.phongLightningShader;
+		BindPhongLightningShader();
+	}
 }
 
 void Renderer::EndScene()
@@ -233,13 +270,7 @@ void Renderer::DrawTriangle(const glm::vec3& position, const glm::vec4& rotation
 
 void Renderer::DrawTriangle(const glm::mat4& transform, const glm::vec4& color)
 {		
-	if (s_Scene->GetLightMode() == LightMode::FLAT_COLOR)
-		BindFlatColorShader(transform, color, false, 0);
-	else if (s_Scene->GetLightMode() == LightMode::PHONG_LIGHTNING)
-		BindPhongLightningShader(transform, color, false, 0, false);
-	else if (s_Scene->GetLightMode() == LightMode::BLINN_PHONG_LIGHTNING)
-		BindPhongLightningShader(transform, color, false, 0, true);
-	
+	SendMatrixAndTexture(transform, color, false, 0);
 	s_RenderData.triangleVA->Bind();
 
 	HANDLE_ERROR(glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, nullptr));
@@ -254,14 +285,7 @@ void Renderer::DrawTriangle(const glm::vec3& position, const glm::vec4& rotation
 void Renderer::DrawTriangle(const glm::mat4& transform, std::shared_ptr<Texture> texture, const glm::vec4& color)
 {
 	texture->Bind();
-
-	if (s_Scene->GetLightMode() == LightMode::FLAT_COLOR)
-		BindFlatColorShader(transform, color, true, texture->GetScale());
-	else if (s_Scene->GetLightMode() == LightMode::PHONG_LIGHTNING)
-		BindPhongLightningShader(transform, color, true, texture->GetScale(), false);
-	else if (s_Scene->GetLightMode() == LightMode::BLINN_PHONG_LIGHTNING)
-		BindPhongLightningShader(transform, color, true, texture->GetScale(), true);
-
+	SendMatrixAndTexture(transform, color, true, texture->GetScale());
 	s_RenderData.triangleVA->Bind();
 
 	HANDLE_ERROR(glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, nullptr));
@@ -277,12 +301,7 @@ void Renderer::DrawQuad(const glm::vec3& position, const glm::vec4& rotation, co
 
 void Renderer::DrawQuad(const glm::mat4& transform, const glm::vec4& color)
 {	
-	if (s_Scene->GetLightMode() == LightMode::FLAT_COLOR)
-		BindFlatColorShader(transform, color, false, 0);
-	else if (s_Scene->GetLightMode() == LightMode::PHONG_LIGHTNING)
-		BindPhongLightningShader(transform, color, false, 0, false);
-	else if (s_Scene->GetLightMode() == LightMode::BLINN_PHONG_LIGHTNING)
-		BindPhongLightningShader(transform, color, false, 0, true);
+	SendMatrixAndTexture(transform, color, false, 0);
 
 	s_RenderData.quadVA->Bind();
 
@@ -298,14 +317,7 @@ void Renderer::DrawQuad(const glm::vec3& position, const glm::vec4& rotation, co
 void Renderer::DrawQuad(const glm::mat4& transform, std::shared_ptr<Texture> texture, const glm::vec4& color)
 {
 	texture->Bind();
-	
-	if (s_Scene->GetLightMode() == LightMode::FLAT_COLOR)
-		BindFlatColorShader(transform, color, true, texture->GetScale());
-	else if (s_Scene->GetLightMode() == LightMode::PHONG_LIGHTNING)
-		BindPhongLightningShader(transform, color, true, texture->GetScale(), false);
-	else if (s_Scene->GetLightMode() == LightMode::BLINN_PHONG_LIGHTNING)
-		BindPhongLightningShader(transform, color, true, texture->GetScale(), true);
-
+	SendMatrixAndTexture(transform, color, true, texture->GetScale());
 	s_RenderData.quadVA->Bind();
 
 	HANDLE_ERROR(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
@@ -321,13 +333,7 @@ void Renderer::DrawCube(const glm::vec3& position, const glm::vec4& rotation, co
 
 void Renderer::DrawCube(const glm::mat4& transform, const glm::vec4& color)
 {
-	if (s_Scene->GetLightMode() == LightMode::FLAT_COLOR)
-		BindFlatColorShader(transform, color, false, 0);
-	else if (s_Scene->GetLightMode() == LightMode::PHONG_LIGHTNING)
-		BindPhongLightningShader(transform, color, false, 0, false);
-	else if (s_Scene->GetLightMode() == LightMode::BLINN_PHONG_LIGHTNING)
-		BindPhongLightningShader(transform, color, false, 0, true);
-
+	SendMatrixAndTexture(transform, color, false, 0);
 	s_RenderData.cubeVA->Bind();
 
 	HANDLE_ERROR(glDrawArrays(GL_TRIANGLES, 0, 36));
@@ -342,14 +348,7 @@ void Renderer::DrawCube(const glm::vec3& position, const glm::vec4& rotation, co
 void Renderer::DrawCube(const glm::mat4& transform, std::shared_ptr<Texture> texture, const glm::vec4& color)
 {
 	texture->Bind();
-	
-	if (s_Scene->GetLightMode() == LightMode::FLAT_COLOR)
-		BindFlatColorShader(transform, color, true, texture->GetScale());
-	else if (s_Scene->GetLightMode() == LightMode::PHONG_LIGHTNING)
-		BindPhongLightningShader(transform, color, true, texture->GetScale(), false);
-	else if (s_Scene->GetLightMode() == LightMode::BLINN_PHONG_LIGHTNING)
-		BindPhongLightningShader(transform, color, true, texture->GetScale(), true);
-
+	SendMatrixAndTexture(transform, color, true, texture->GetScale());
 	s_RenderData.cubeVA->Bind();
 
 	HANDLE_ERROR(glDrawArrays(GL_TRIANGLES, 0, 36));
