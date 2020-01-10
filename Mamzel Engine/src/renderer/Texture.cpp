@@ -1,8 +1,8 @@
 #include "Texture.h"
 #include "../util/ErrorHandling.h"
 
-#include "GL/glew.h"
-#include "stb_image/stb_image.h"
+#include <GL/glew.h>
+#include <stb_image/stb_image.h>
 
 #include <iostream>
 
@@ -11,9 +11,10 @@ Texture::Texture()
 {
 }
 
-Texture::Texture(const char* path)
+Texture::Texture(const char* path, const std::string& name)
 {	
 	m_Scale = 1.0f;
+	m_Name = name;
 	
 	int w, h, channels;
 	stbi_set_flip_vertically_on_load(1);
@@ -46,9 +47,9 @@ Texture::~Texture()
 {
 }
 
-std::shared_ptr<Texture> Texture::CreateTexture(const char* path)
+std::shared_ptr<Texture> Texture::Create(const char* path, const std::string& name)
 {
-	return std::make_shared<Texture>(path);
+	return std::make_shared<Texture>(path, name);
 }
 
 void Texture::SetWrapAndFilterMode(int wrapMode, int filterModeMin, int filterModeMag)
@@ -65,9 +66,9 @@ void Texture::SetScale(float scale)
 	m_Scale = scale;
 }
 
-void Texture::Bind()
+void Texture::Bind(unsigned int slot)
 {
-	HANDLE_ERROR(glActiveTexture(GL_TEXTURE0));
+	HANDLE_ERROR(glActiveTexture(GL_TEXTURE0 + slot));
 	HANDLE_ERROR(glBindTexture(GL_TEXTURE_2D, m_TextureID));
 }
 

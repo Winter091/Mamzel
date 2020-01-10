@@ -19,7 +19,7 @@ void Renderer::BindPhongLightningShader()
 	s_RenderData.phongLightningShader->SetUniform("u_UseBlinn", useBlinn);
 
 	// Global light
-	std::shared_ptr<Light> globalLight = s_Scene->GetGlobalLight();
+	std::shared_ptr<GlobalLight> globalLight = s_Scene->GetGlobalLight();
 	if (globalLight == nullptr)
 	{
 		s_RenderData.phongLightningShader->SetUniform("u_UseGlobalLight", 0);
@@ -28,10 +28,10 @@ void Renderer::BindPhongLightningShader()
 	{
 		s_RenderData.phongLightningShader->SetUniform("u_UseGlobalLight", 1);
 
-		s_RenderData.phongLightningShader->SetUniform("u_GlobalLight.direction", globalLight->GetPosition());
+		s_RenderData.phongLightningShader->SetUniform("u_GlobalLight.direction", globalLight->GetDirection());
 		s_RenderData.phongLightningShader->SetUniform("u_GlobalLight.diffuseColor", globalLight->GetDiffuseColor());
 		s_RenderData.phongLightningShader->SetUniform("u_GlobalLight.specularColor", globalLight->GetSpecularColor());
-		s_RenderData.phongLightningShader->SetUniform("u_GlobalLight.intensity", globalLight->GetRange());
+		s_RenderData.phongLightningShader->SetUniform("u_GlobalLight.intensity", globalLight->GetIntensity());
 	}
 
 	// Point Lights
@@ -42,7 +42,7 @@ void Renderer::BindPhongLightningShader()
 	s_RenderData.phongLightningShader->SetUniform("u_Light.count", (int)s_Scene->GetPointLights().size());
 	for (int i = 0; i < s_Scene->GetPointLights().size(); i++)
 	{
-		std::shared_ptr<Light> light = s_Scene->GetPointLights()[i];
+		std::shared_ptr<PointLight> light = s_Scene->GetPointLights()[i];
 		std::string index = std::to_string(i);
 		const glm::vec3& lightAttenuation = light->GetAttenuation();
 
@@ -84,8 +84,12 @@ void Renderer::SendMatrixAndTexture(const glm::mat4& transform, const glm::vec4&
 
 void Renderer::Init()
 {
-	s_RenderData.flatColorShader = std::make_shared<Shader>("res/shaders/flatColor.glsl");
-	s_RenderData.phongLightningShader = std::make_shared<Shader>("res/shaders/phongLightning.glsl");
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	
+	s_RenderData.flatColorShader = Shader::Create("res/shaders/flatColor.glsl");
+	s_RenderData.phongLightningShader = Shader::Create("res/shaders/phongLightning.glsl");
 
 	// Triangle data ================================================================================================
 	float verticesTriangle[] = {
@@ -96,14 +100,14 @@ void Renderer::Init()
 	};
 	unsigned int indicesTriangle[] = { 0, 1, 2 };
 
-	s_RenderData.triangleVB = std::make_shared<VertexBuffer>(verticesTriangle, sizeof(verticesTriangle));
-	s_RenderData.triangleIB = std::make_shared<IndexBuffer>(indicesTriangle, sizeof(indicesTriangle));
+	s_RenderData.triangleVB = VertexBuffer::Create(verticesTriangle, sizeof(verticesTriangle));
+	s_RenderData.triangleIB = IndexBuffer::Create(indicesTriangle, sizeof(indicesTriangle));
 	VertexBufferLayout layoutTriangle = {
 		{ GL_FLOAT, 3, "a_Position" },
 		{ GL_FLOAT, 2, "a_TexCoord" },
 		{ GL_FLOAT, 3, "a_Normal" }
 	};
-	s_RenderData.triangleVA = std::make_shared<VertexArray>(s_RenderData.triangleVB, s_RenderData.triangleIB, layoutTriangle);
+	s_RenderData.triangleVA = VertexArray::Create(s_RenderData.triangleVB, s_RenderData.triangleIB, layoutTriangle);
 
 	// Quad data ====================================================================================================
 	float verticesQuad[] = {
@@ -115,14 +119,14 @@ void Renderer::Init()
 	};
 	unsigned int indicesQuad[] = { 0, 1, 2, 2, 3, 0 };
 
-	s_RenderData.quadVB = std::make_shared<VertexBuffer>(verticesQuad, sizeof(verticesQuad));
-	s_RenderData.quadIB = std::make_shared<IndexBuffer>(indicesQuad, sizeof(indicesQuad));
+	s_RenderData.quadVB = VertexBuffer::Create(verticesQuad, sizeof(verticesQuad));
+	s_RenderData.quadIB = IndexBuffer::Create(indicesQuad, sizeof(indicesQuad));
 	VertexBufferLayout layoutQuad = {
 		{ GL_FLOAT, 3, "a_Position" },
 		{ GL_FLOAT, 2, "a_TexCoord" },
 		{ GL_FLOAT, 3, "a_Normal" }
 	};
-	s_RenderData.quadVA = std::make_shared<VertexArray>(s_RenderData.quadVB, s_RenderData.quadIB, layoutQuad);
+	s_RenderData.quadVA = VertexArray::Create(s_RenderData.quadVB, s_RenderData.quadIB, layoutQuad);
 
 	// Cube data ====================================================================================================
 	float verticesCube[] = {
@@ -170,13 +174,13 @@ void Renderer::Init()
 		-0.5f,  0.5f, -0.5f,     0.0f, 1.0f,     0.0f,  1.0f,  0.0f
 	};
 
-	s_RenderData.cubeVB = std::make_shared<VertexBuffer>(verticesCube, sizeof(verticesCube));
+	s_RenderData.cubeVB = VertexBuffer::Create(verticesCube, sizeof(verticesCube));
 	VertexBufferLayout layoutCube = {
 		{ GL_FLOAT, 3, "a_Position" },
 		{ GL_FLOAT, 2, "a_TexCoord" },
 		{ GL_FLOAT, 3, "a_Normal" }
 	};
-	s_RenderData.cubeVA = std::make_shared<VertexArray>(s_RenderData.cubeVB, layoutCube);
+	s_RenderData.cubeVA = VertexArray::Create(s_RenderData.cubeVB, layoutCube);
 }
 
 void Renderer::Free()
@@ -239,8 +243,6 @@ void Renderer::DrawCustomShape(const std::shared_ptr<VertexArray>& va, const std
 {
 	va->Bind();
 	shader->Bind();
-
-	shader->SetUniform("u_MatrixMVP", s_Scene->GetCamera()->GetMatrixVP() * modelMatrix);
 
 	// No IndexBuffer is used
 	if (va->GetIndexCount() == -1)

@@ -5,8 +5,11 @@
 
 
 VertexArray::VertexArray()
-	: m_VertexArrayID(-1), m_VertexCount(-1), m_IndexCount(-1)
 {
+	HANDLE_ERROR(glGenVertexArrays(1, &this->m_VertexArrayID));
+	Bind();
+	m_VertexCount = -1;
+	m_IndexCount = -1;
 }
 
 VertexArray::VertexArray(std::shared_ptr<VertexBuffer>& vb, const VertexBufferLayout& layout)
@@ -65,12 +68,24 @@ VertexArray::VertexArray(std::shared_ptr<VertexBuffer>& vb, std::shared_ptr<Inde
 VertexArray::~VertexArray()
 {
 	HANDLE_ERROR(glDeleteVertexArrays(1, &this->m_VertexArrayID));
-};
+}
+
+std::shared_ptr<VertexArray> VertexArray::Create(std::shared_ptr<VertexBuffer>& vb, const VertexBufferLayout& layout)
+{
+	return std::make_shared<VertexArray>(vb, layout);
+}
+
+std::shared_ptr<VertexArray> VertexArray::Create(std::shared_ptr<VertexBuffer>& vb, std::shared_ptr<IndexBuffer>& ib, const VertexBufferLayout& layout)
+{
+	return std::make_shared<VertexArray>(vb, ib, layout);
+}
 
 void VertexArray::AddVertexBuffer(const VertexBuffer& vb, const VertexBufferLayout& layout)
 {
 	Bind();
 	vb.Bind();
+
+	m_VertexCount = vb.GetCount() / (layout.GetStride() / sizeof(float));
 
 	const auto& elements = layout.GetElements();
 	unsigned int offset = 0;
@@ -101,6 +116,8 @@ void VertexArray::AddVertexBuffer(std::shared_ptr<VertexBuffer>& vb, const Verte
 	Bind();
 	vb->Bind();
 
+	m_VertexCount = vb->GetCount() / (layout.GetStride() / sizeof(float));
+
 	const auto& elements = layout.GetElements();
 	unsigned int offset = 0;
 
@@ -114,6 +131,7 @@ void VertexArray::AddVertexBuffer(std::shared_ptr<VertexBuffer>& vb, const Verte
 
 		offset += element.count * VertexBufferElement::GetTypeSize(element.type);
 	}
+
 	Unbind();
 }
 

@@ -1,6 +1,6 @@
 #include "ErrorHandling.h"
 
-#include "GL/glew.h"
+#include <GL/glew.h>
 
 #include <iostream>
 #include <filesystem>

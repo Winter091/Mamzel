@@ -1,7 +1,7 @@
 #include "Shader.h"
 #include "../util/ErrorHandling.h"
 
-#include "GL/glew.h"
+#include <GL/glew.h>
 
 #include <fstream>
 #include <iostream>
@@ -108,6 +108,11 @@ Shader::Shader(const char* path)
 Shader::~Shader()
 {
 	HANDLE_ERROR(glDeleteProgram(this->m_ShaderProgramID));
+}
+
+std::shared_ptr<Shader> Shader::Create(const char* path)
+{
+	return std::make_shared<Shader>(path);
 }
 
 void Shader::Bind() const

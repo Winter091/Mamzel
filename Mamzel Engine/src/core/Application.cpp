@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#include "../core/Scene.h"
+#include "../scene/Scene.h"
 #include "../util/ErrorHandling.h"
 #include "../util/Input.h"
 
@@ -48,11 +48,6 @@ GLFWwindow* Application::InitWindow(int w, int h, bool useVSync)
 		glfwTerminate();
 	}
 
-	glEnable(GL_DEPTH_TEST);
-
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
 	return window;
 }
 
@@ -68,10 +63,11 @@ Application::Application(unsigned int windowWidth, unsigned int windowHeight, bo
 	m_StartTime = std::chrono::high_resolution_clock::now();
 	m_LastTime = m_StartTime;
 
-	m_Camera = std::make_shared<PerspectiveCamera>(windowWidth, windowHeight, 45.0f);
+	m_Camera = PerspectiveCamera::Create(windowWidth, windowHeight, 45.0f);
 	s_CameraRef = m_Camera;
 
 	Input::SetWindow(m_Window);
+
 	Renderer::Init();
 
 	ImGui::CreateContext();

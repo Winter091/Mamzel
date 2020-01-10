@@ -1,11 +1,8 @@
 #include "PerspectiveCamera.h"
-
-#include "glm/gtc/matrix_transform.hpp"
-#include "glm/gtc/type_ptr.hpp"
-
 #include "../util/Input.h"
 
-#include "../debug/Instrumentor.h"
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 void PerspectiveCamera::handleMouseMovement(GLFWwindow* window)
 {
@@ -58,6 +55,11 @@ PerspectiveCamera::PerspectiveCamera(float windowWidth, float windowHeight, floa
 
 PerspectiveCamera::~PerspectiveCamera()
 {
+}
+
+std::shared_ptr<PerspectiveCamera> PerspectiveCamera::Create(float windowWidth, float windowHeight, float fov)
+{
+	return std::make_shared<PerspectiveCamera>(windowWidth, windowHeight, fov);
 }
 
 void PerspectiveCamera::SetPosition(const glm::vec3& position)

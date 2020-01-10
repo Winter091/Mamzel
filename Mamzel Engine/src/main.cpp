@@ -1,8 +1,9 @@
+#include "SandboxApp.h"
 #include "MinecraftScene.h"
 
 int main()
 {	
-	MinecraftScene* app = new MinecraftScene;
+	auto app = new MinecraftScene;
 	app->Run();
 	delete app;
 }

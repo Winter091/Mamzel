@@ -2,6 +2,10 @@
 
 #include <iostream>
 
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
 MinecraftScene::MinecraftScene()
 	: Application(1600, 900, false)
 {
@@ -21,7 +25,11 @@ MinecraftScene::MinecraftScene()
 	TextureLibrary::SetScale("grass", 100.0f);
 
 	TextureLibrary::SetWrapAndFilterMode("stars", GL_REPEAT, GL_NEAREST_MIPMAP_NEAREST, GL_LINEAR);
-	TextureLibrary::SetScale("stars", 5.0f);
+	TextureLibrary::SetScale("stars", 5.0f);	
+
+	Assimp::Importer importer;
+	const aiScene* scene = importer.ReadFile("res/models/nanosuit/nanosuit.obj", aiProcess_Triangulate | aiProcess_FlipUVs);
+	std::cout << 123;
 }
 
 MinecraftScene::~MinecraftScene()
@@ -57,9 +65,29 @@ void MinecraftScene::DrawGui()
 		ImGui::EndCombo();
 	}
 
-	ImGui::SliderFloat("Lamp1", &lamp1Range, 5, 500);
-	ImGui::SliderFloat("Lamp2", &lamp2Range, 5, 500);
-	ImGui::SliderFloat("Moon", &moonRange, 5, 500);
+	if (ImGui::CollapsingHeader("Lamp1"))
+	{
+		ImGui::SliderFloat3("Position1", &m_Lamp1Pos.x, -5.0f, 5.0f);
+		ImGui::ColorEdit3("Diffuse Color1", &m_Lamp1DiffColor.x);
+		ImGui::ColorEdit3("Specular Color1", &m_Lamp1SpecColor.x);
+		ImGui::SliderFloat("Range1", &m_Lamp1Range, 5, 1000);
+	}
+
+	if (ImGui::CollapsingHeader("Lamp2"))
+	{
+		ImGui::SliderFloat3("Position2", &m_Lamp2Pos.x, -5.0f, 5.0f);
+		ImGui::ColorEdit3("Diffuse Color2", &m_Lamp2DiffColor.x);
+		ImGui::ColorEdit3("Specular Color2", &m_Lamp2SpecColor.x);
+		ImGui::SliderFloat("Range2", &m_Lamp2Range, 5, 1000);
+	}
+
+	if (ImGui::CollapsingHeader("Sun"))
+	{
+		ImGui::SliderFloat3("Direction3", &m_SunDirection.x, -1.0f, 1.0f);
+		ImGui::ColorEdit3("Diffuse Color3", &m_SunDiffColor.x);
+		ImGui::ColorEdit3("Specular Color3", &m_SunSpecColor.x);
+		ImGui::SliderFloat("Intensity3", &m_SunIntensity, 0.0f, 1.5f);
+	}
 
 	ImGui::End();
 }
@@ -69,24 +97,28 @@ void MinecraftScene::DrawOpenGL()
 	Renderer::SetClearColor(0.0f, 0.0f, 0.0f);
 	Renderer::Clear();
 
-	static glm::vec3 lamp1Position = glm::vec3(3.0, 0.0, 3.0);
-	static glm::vec3 lamp2Position = glm::vec3(-2.0, 0.0, -2.0);
-	static glm::vec3 moonPosition = glm::vec3(-10.0, 20.0, -100.0);
+	glm::vec3 lamp1Position = m_Lamp1Pos;
+	glm::vec3 lamp2Position = m_Lamp2Pos;
+	glm::vec3 moonPosition(-10.0, 20.0, -100.0);
 
 	Scene scene;
 	scene.SetCamera(m_Camera);
 
-	std::shared_ptr<Light> lamp1 = std::make_shared<Light>(lamp1Position, lamp1Range);
-	std::shared_ptr<Light> lamp2 = std::make_shared<Light>(lamp2Position, lamp2Range);
-	std::shared_ptr<Light> moon  = std::make_shared<Light>(moonPosition, moonRange);
+	GlobalLight sun(m_SunDirection, m_SunIntensity);
+	sun.SetDiffuseColor(m_SunDiffColor);
+	sun.SetSpecularColor(m_SunSpecColor);
 
-	lamp1->SetDiffuseColor({ 1.0, 0.0, 0.0 });
-	lamp1->SetSpecularColor({ 0.0, 1.0, 1.0 });
+	PointLight lamp1(lamp1Position, m_Lamp1Range);
+	lamp1.SetDiffuseColor(m_Lamp1DiffColor);
+	lamp1.SetSpecularColor(m_Lamp1SpecColor);
 
-	scene.SetGlobalLight({ 1.0, -1.0, 0.0 }, 1.0, { 0.0, 1.0, 1.0 }, { 1.0, 0.0, 0.0 });
+	PointLight lamp2(lamp2Position, m_Lamp2Range);
+	lamp2.SetDiffuseColor(m_Lamp2DiffColor);
+	lamp2.SetSpecularColor(m_Lamp2SpecColor);
+
+	scene.SetGlobalLight(sun);
 	scene.AddPointLight(lamp1);
 	scene.AddPointLight(lamp2);
-	scene.AddPointLight(moon);
 
 	LightMode curr;
 	if (m_CurrentLightning == "Flat Color")

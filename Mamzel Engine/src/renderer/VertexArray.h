@@ -19,6 +19,9 @@ public:
 	VertexArray(std::shared_ptr<VertexBuffer>& vb, std::shared_ptr<IndexBuffer>& ib, const VertexBufferLayout& layout);
 	~VertexArray();
 
+	static std::shared_ptr<VertexArray> Create(std::shared_ptr<VertexBuffer>& vb, const VertexBufferLayout& layout);
+	static std::shared_ptr<VertexArray> Create(std::shared_ptr<VertexBuffer>& vb, std::shared_ptr<IndexBuffer>& ib, const VertexBufferLayout& layout);
+
 	void AddVertexBuffer(const VertexBuffer& vb, const VertexBufferLayout& layout);
 	void AddIndexBuffer(const IndexBuffer& ib);
 

@@ -1,7 +1,9 @@
 #pragma once
 
-#include "glm/glm.hpp"
-#include "GLFW/glfw3.h"
+#include <memory>
+
+#include <glm/glm.hpp>
+#include <GLFW/glfw3.h>
 
 class PerspectiveCamera
 {
@@ -29,6 +31,8 @@ public:
 
 	PerspectiveCamera(float windowWidth, float windowHeight, float fov);
 	~PerspectiveCamera();
+
+	static std::shared_ptr<PerspectiveCamera> Create(float windowWidth, float windowHeight, float fov);
 
 	void SetPosition(const glm::vec3& position);
 	void SetMoveSpeedAndMouseSens(float moveSpeed, float mouseSens);

@@ -1,4 +1,7 @@
 .vs/
-*.ini
 bin/
-Mamzel Engine/src/debug/
+
+*.ini
+Mamzel Engine/src/util/Instrumentor.h
+Mamzel Engine/src/renderer/BatchRenderer.h
+Mamzel Engine/src/renderer/BatchRenderer.cpp

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "glm/glm.hpp"
+#include <glm/glm.hpp>
 
 #include "VertexBuffer.h"
 #include "VertexBufferLayout.h"
@@ -8,7 +8,7 @@
 #include "VertexArray.h"
 #include "Shader.h"
 #include "Texture.h"
-#include "../core/Scene.h"
+#include "../scene/Scene.h"
 
 struct rendererData_t
 {
@@ -45,11 +45,11 @@ public:
 	static void Init();
 	static void Free();
 
-	static void BeginScene(const Scene& scene);
-	static void EndScene();
-
 	static void SetClearColor(float r, float g, float b);
 	static void Clear();
+
+	static void BeginScene(const Scene& scene);
+	static void EndScene();
 
 	static void DrawCustomShape(const std::shared_ptr<VertexArray>& va, const std::shared_ptr<Shader>& shader, const glm::mat4& modelMatrix);
 	static void DrawCustomShape(const std::shared_ptr<VertexArray>& va, const std::shared_ptr<Shader>& shader, const std::shared_ptr<Texture> texture, const glm::mat4& modelMatrix);

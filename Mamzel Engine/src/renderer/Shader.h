@@ -2,10 +2,11 @@
 
 #include <string>
 #include <unordered_map>
+#include <memory>
 
-#include "../vendor/glm/glm.hpp"
-#include "../vendor/glm/gtc/matrix_transform.hpp"
-#include "../vendor/glm/gtc/type_ptr.hpp"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 struct ShaderSources
 {
@@ -28,6 +29,8 @@ public:
 	Shader();
 	Shader(const char* path);
 	~Shader();
+
+	static std::shared_ptr<Shader> Create(const char* path);
 
 	void Bind() const;
 	void Unbind() const;
