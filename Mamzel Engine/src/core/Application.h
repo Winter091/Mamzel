@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include <memory>
+#include <iostream>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -14,15 +15,22 @@
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_opengl3.h>
 
-#include "../renderer/VertexBuffer.h"
-#include "../renderer/VertexBufferLayout.h"
-#include "../renderer/IndexBuffer.h"
-#include "../renderer/VertexArray.h"
+#include "../renderer/buffers/VertexBuffer.h"
+#include "../renderer/buffers/VertexBufferLayout.h"
+#include "../renderer/buffers/IndexBuffer.h"
+#include "../renderer/buffers/VertexArray.h"
 #include "../renderer/Shader.h"
-#include "../renderer/PerspectiveCamera.h"
 #include "../renderer/Renderer.h"
-#include "../renderer/BatchRenderer.h"
+#include "../renderer/RenderData.h"
+#include "../renderer/RenderCommand.h"
+
+#include "../scene/PerspectiveCamera.h"
 #include "../scene/TextureLibrary.h"
+#include "../scene/Model.h"
+#include "../scene/Scene.h"
+
+#include "../util/ErrorHandling.h"
+#include "../util/Input.h"
 
 class Application
 {
@@ -35,17 +43,18 @@ protected:
 
 	std::shared_ptr<PerspectiveCamera> m_Camera;
 
+protected:
+	// To be defined by user
 	virtual void DrawOpenGL() = 0;
 	virtual void DrawGui() = 0;
 
 private:
 
-	// Certainly not the best way to update camera's aspect ratio on window resize
+	// Holding the reference to update camera's aspect ratio on window resize
 	static std::shared_ptr<PerspectiveCamera> s_CameraRef;
+	static void OnWindowResize(GLFWwindow* window, int width, int height);
 	
 	GLFWwindow* InitWindow(int w, int h, bool useVSync);
-
-	static void OnWindowResize(GLFWwindow* window, int width, int height);
 
 public:
 

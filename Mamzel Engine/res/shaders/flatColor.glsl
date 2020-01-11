@@ -20,7 +20,7 @@ void main()
 
 # version 440 core
 
-uniform vec3 u_ObjectColor;
+uniform vec4 u_ObjectColor;
 
 uniform int u_UseTexture;
 uniform sampler2D u_TextureSampler;
@@ -31,7 +31,7 @@ out vec4 out_color;
 void main()
 {
 	if (u_UseTexture == 0)
-		out_color = vec4(u_ObjectColor, 1.0);
+		out_color = u_ObjectColor;
 	else
-		out_color = vec4(u_ObjectColor, 1.0) * texture(u_TextureSampler, v_TexCoord);
+		out_color = u_ObjectColor * texture(u_TextureSampler, v_TexCoord);
 }

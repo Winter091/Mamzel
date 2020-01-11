@@ -7,14 +7,15 @@
 #include <iostream>
 
 Texture::Texture()
-	: m_TextureID(0), m_Scale(0.0f)
+	: m_TextureID(0), m_Name(""), m_Path(""), m_Scale(0.0f)
 {
 }
 
-Texture::Texture(const char* path, const std::string& name)
+Texture::Texture(const char* path, const char* name)
 {	
 	m_Scale = 1.0f;
 	m_Name = name;
+	m_Path = path;
 	
 	int w, h, channels;
 	stbi_set_flip_vertically_on_load(1);
@@ -22,7 +23,7 @@ Texture::Texture(const char* path, const std::string& name)
 
 	if (!data)
 	{
-		std::cout << "Error! unable to open [" << path << "]\n";
+		std::cout << "[Texture] Error! unable to open [" << path << "]\n";
 		exit(0);
 	}
 	
@@ -37,8 +38,8 @@ Texture::Texture(const char* path, const std::string& name)
 	// Initial parameters
 	HANDLE_ERROR(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
 	HANDLE_ERROR(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
-	HANDLE_ERROR(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
-	HANDLE_ERROR(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+	HANDLE_ERROR(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST));
+	HANDLE_ERROR(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
 	
 	stbi_image_free(data);
 }
@@ -47,7 +48,7 @@ Texture::~Texture()
 {
 }
 
-std::shared_ptr<Texture> Texture::Create(const char* path, const std::string& name)
+std::shared_ptr<Texture> Texture::Create(const char* path, const char* name)
 {
 	return std::make_shared<Texture>(path, name);
 }

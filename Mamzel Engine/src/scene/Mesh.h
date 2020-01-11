@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../renderer/VertexBuffer.h"
-#include "../renderer/IndexBuffer.h"
-#include "../renderer/VertexArray.h"
+#include "../renderer/buffers/VertexBuffer.h"
+#include "../renderer/buffers/IndexBuffer.h"
+#include "../renderer/buffers/VertexArray.h"
 #include "../renderer/Texture.h"
 #include "../renderer/Shader.h"
 
@@ -36,5 +36,5 @@ public:
 	Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, const std::vector<Texture>& textures);
 	~Mesh();
 
-	void Draw(std::shared_ptr<Shader> shader);
+	void Draw(std::shared_ptr<Shader>& shader);
 };

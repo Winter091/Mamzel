@@ -1,6 +1,8 @@
 .vs/
 bin/
 
+Mamzel Engine/res/models/lowpolywolf/
+
 *.ini
 Mamzel Engine/src/util/Instrumentor.h
 Mamzel Engine/src/renderer/BatchRenderer.h

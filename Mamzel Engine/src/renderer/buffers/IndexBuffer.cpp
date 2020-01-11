@@ -1,5 +1,5 @@
 #include "IndexBuffer.h"
-#include "../util/ErrorHandling.h"
+#include "../../util/ErrorHandling.h"
 
 #include <iostream>
 

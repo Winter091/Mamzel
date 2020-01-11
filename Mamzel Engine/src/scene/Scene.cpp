@@ -10,10 +10,10 @@ Scene::~Scene()
 {
 	m_Camera = nullptr;
 	m_PointLights.clear();
-	m_GlobalLight = nullptr;
+	m_DirectionalLight = nullptr;
 }
 
-void Scene::SetCamera(std::shared_ptr<PerspectiveCamera> camera)
+void Scene::SetCamera(std::shared_ptr<PerspectiveCamera>& camera)
 {
 	m_Camera = camera;
 }
@@ -23,17 +23,17 @@ void Scene::SetLightning(LightMode lightning)
 	m_LightMode = lightning;
 }
 
-void Scene::SetGlobalLight(std::shared_ptr<GlobalLight> light)
+void Scene::SetDirectionalLight(std::shared_ptr<DirectionalLight>& light)
 {
-	m_GlobalLight = light;
+	m_DirectionalLight = light;
 }
 
-void Scene::SetGlobalLight(const GlobalLight& light)
+void Scene::SetDirectionalLight(const DirectionalLight& light)
 {
-	m_GlobalLight = std::make_shared<GlobalLight>(light);
+	m_DirectionalLight = std::make_shared<DirectionalLight>(light);
 }
 
-void Scene::AddPointLight(std::shared_ptr<PointLight> light)
+void Scene::AddPointLight(std::shared_ptr<PointLight>& light)
 {
 	m_PointLights.push_back(light);
 }

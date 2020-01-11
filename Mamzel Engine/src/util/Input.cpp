@@ -30,3 +30,25 @@ bool Input::KeyPressed(int glfwKeyCode)
 		return true;
 	return false;
 }
+
+bool Input::MouseLeftButtonPressed()
+{
+	return glfwGetMouseButton((GLFWwindow*)s_WindowRef, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
+}
+
+bool Input::MouseRightButtonPressed()
+{
+	return glfwGetMouseButton((GLFWwindow*)s_WindowRef, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS;
+}
+
+std::pair<double, double> Input::GetMousePos()
+{
+	std::pair<double, double> mousePos;
+	glfwGetCursorPos((GLFWwindow*)s_WindowRef, &mousePos.first, &mousePos.second);
+	return mousePos;
+}
+
+void Input::SetMouseInputMode(int mode)
+{
+	glfwSetInputMode((GLFWwindow*)s_WindowRef, GLFW_CURSOR, mode);
+}

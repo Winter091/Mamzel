@@ -16,7 +16,7 @@ out struct VertexOut
 uniform mat4 u_MatrixMVP;
 uniform mat4 u_ObjectTransform;
 
-uniform float u_TextureScale;
+uniform float u_TextureScale = 1.0;
 
 void main() 
 {
@@ -37,7 +37,7 @@ in struct VertexOut
 	vec2 texCoord;
 } vOut;
 
-uniform struct Light
+uniform struct PointLight
 {
 	float ambient;
 	float diffuse;
@@ -56,23 +56,23 @@ uniform struct Light
 
 	vec3 diffuseColor[32];
 	vec3 specularColor[32];
-} u_Light;
+} u_PointLight;
 
-uniform struct GlobalLight
+uniform struct DirectionalLight
 {
 	vec3 direction;
 	vec3 diffuseColor;
 	vec3 specularColor;
 	float intensity;
-} u_GlobalLight;
+} u_DirectionalLight;
 
-uniform vec3 u_ObjectColor;
+uniform vec4 u_ObjectColor;
 uniform vec3 u_CameraPos;
 
-uniform int u_UseBlinn;
-uniform int u_UseGlobalLight;
+uniform bool u_UseBlinn;
+uniform bool u_UseDirectionalLight = false;
+uniform bool u_UseTexture = false;
 
-uniform int u_UseTexture;
 uniform sampler2D u_TextureSampler;
 
 out vec4 out_color;
@@ -100,7 +100,7 @@ float Blinn(in vec3 lightDir, in vec3 normal, in vec3 eye)
 void main()
 {
 	// One ambient component
-	vec3 result = vec3(u_Light.ambient);
+	vec4 result = vec4(u_PointLight.ambient);
 	
 	vec3 norm = normalize(vOut.normal);
 	vec3 viewDir = normalize(u_CameraPos - vOut.fragPos);
@@ -108,40 +108,40 @@ void main()
 	vec3 diffuse, specular;
 
 	// Point lights
-	for (int i = 0; i < u_Light.count; i++)
+	for (int i = 0; i < u_PointLight.count; i++)
 	{	
-		float distFormLight = length(u_Light.positions[i] - vOut.fragPos);
-		float attenuation = 1.0 / ((u_Light.constant[i]) + (u_Light.linear[i] * distFormLight) + (u_Light.quadratic[i] * distFormLight * distFormLight));
+		float distFormLight = length(u_PointLight.positions[i] - vOut.fragPos);
+		float attenuation = 1.0 / ((u_PointLight.constant[i]) + (u_PointLight.linear[i] * distFormLight) + (u_PointLight.quadratic[i] * distFormLight * distFormLight));
 
-		vec3 lightDir = normalize(u_Light.positions[i] - vOut.fragPos);
+		vec3 lightDir = normalize(u_PointLight.positions[i] - vOut.fragPos);
 		
-		diffuse =  Diffuse(lightDir, norm) * u_Light.diffuse * u_Light.diffuseColor[i] * attenuation;
+		diffuse =  Diffuse(lightDir, norm) * u_PointLight.diffuse * u_PointLight.diffuseColor[i] * attenuation;
 		
-		if (u_UseBlinn == 0)
-			specular = Phong(lightDir, norm, viewDir) * u_Light.specular * u_Light.specularColor[i] * attenuation;
+		if (u_UseBlinn)
+			specular = Blinn(lightDir, norm, viewDir) * u_PointLight.specular * u_PointLight.specularColor[i] * attenuation;
 		else
-			specular = Blinn(lightDir, norm, viewDir) * u_Light.specular * u_Light.specularColor[i] * attenuation;
+			specular = Phong(lightDir, norm, viewDir) * u_PointLight.specular * u_PointLight.specularColor[i] * attenuation;
 
-		result += (diffuse + specular);
+		result += (vec4(diffuse + specular, 1.0));
 	}
 
-	// Global light
-	if (u_UseGlobalLight == 1)
+	// Directional light
+	if (u_UseDirectionalLight)
 	{
-		diffuse = Diffuse(-u_GlobalLight.direction, norm) * u_GlobalLight.intensity * u_GlobalLight.diffuseColor;
+		diffuse = Diffuse(-u_DirectionalLight.direction, norm) * u_DirectionalLight.intensity * u_DirectionalLight.diffuseColor;
 
-		if (u_UseBlinn == 0)
-			specular = Phong(-u_GlobalLight.direction, norm, viewDir) * u_GlobalLight.intensity * u_GlobalLight.specularColor;
+		if (u_UseBlinn)
+			specular = Blinn(-u_DirectionalLight.direction, norm, viewDir) * u_DirectionalLight.intensity * u_DirectionalLight.specularColor;
 		else
-			specular = Blinn(-u_GlobalLight.direction, norm, viewDir) * u_GlobalLight.intensity * u_GlobalLight.specularColor;
+			specular = Phong(-u_DirectionalLight.direction, norm, viewDir) * u_DirectionalLight.intensity * u_DirectionalLight.specularColor;
 
-		result += (diffuse + specular);
+		result += (vec4(diffuse, 1.0) + vec4(specular, 1.0));
 	}
 	
 	result *= u_ObjectColor;
 
-	if (u_UseTexture == 0)
-		out_color = vec4(result, 1.0);
+	if (u_UseTexture)
+		out_color = texture(u_TextureSampler, vOut.texCoord) * result;
 	else
-		out_color = texture(u_TextureSampler, vOut.texCoord) * vec4(result, 1.0);
+		out_color = result;
 }

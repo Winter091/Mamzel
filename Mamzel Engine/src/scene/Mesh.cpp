@@ -3,8 +3,8 @@
 
 void Mesh::SetupMesh()
 {
-	m_VertexBuffer = VertexBuffer::Create(&m_Vertices[0], m_Vertices.size() * sizeof(Vertex));
-	m_IndexBuffer = IndexBuffer::Create(&m_Indices[0], m_Indices.size() * sizeof(unsigned int));
+	m_VertexBuffer = VertexBuffer::Create(m_Vertices.data(), (unsigned int)m_Vertices.size() * sizeof(Vertex));
+	m_IndexBuffer = IndexBuffer::Create(m_Indices.data(), (unsigned int)m_Indices.size() * sizeof(unsigned int));
 	VertexBufferLayout layout = {
 		{ GL_FLOAT, 3, "a_Position" },
 		{ GL_FLOAT, 2, "a_TexCoord" },
@@ -33,15 +33,15 @@ Mesh::~Mesh()
 	m_Textures.clear();
 }
 
-void Mesh::Draw(std::shared_ptr<Shader> shader)
+void Mesh::Draw(std::shared_ptr<Shader>& shader)
 {
-	unsigned int diffuseNum = 0, specularNum = 0;;
+	unsigned int diffuseNum = 0, specularNum = 0;
 
 	for (int i = 0; i < m_Textures.size(); i++)
 	{
-		std::string num;
 		const std::string& name = m_Textures[i].GetName();
-		
+
+		std::string num;
 		if (name == "texture_diffuse")
 			num = std::to_string(diffuseNum++);
 		else if (name == "texture_specular")
@@ -52,5 +52,5 @@ void Mesh::Draw(std::shared_ptr<Shader> shader)
 	}
 
 	m_VertexArray->Bind();
-	HANDLE_ERROR(glDrawElements(GL_TRIANGLES, m_Indices.size(), GL_UNSIGNED_INT, nullptr));
+	HANDLE_ERROR(glDrawElements(GL_TRIANGLES, (GLsizei)m_Indices.size(), GL_UNSIGNED_INT, nullptr));
 }

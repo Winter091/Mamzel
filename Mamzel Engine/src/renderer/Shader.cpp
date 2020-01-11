@@ -46,7 +46,7 @@ ShaderSources Shader::ParseSources(const char* path)
 
 	if (!file)
 	{
-		std::cout << "Error! unable to open [" << path << "]\n";
+		std::cout << "[Shader] Error! unable to open [" << path << "]\n";
 		exit(0);
 	}
 
@@ -130,7 +130,7 @@ void Shader::SetUniform(const char* name, int i1)
 	int location = this->getUnifromLocation(name);
 
 	if (location == -1)
-		std::cout << "Warning! [" << name << "] uniform location is -1!\n";
+		std::cout << "[Shader] Warning! [" << name << "] uniform location is -1!\n";
 	else
 		HANDLE_ERROR(glUniform1i(location, i1));
 }
@@ -140,7 +140,7 @@ void Shader::SetUniform(const char* name, float f1)
 	int location = this->getUnifromLocation(name);
 	
 	if (location == -1)
-		std::cout << "Warning! [" << name << "] uniform location is -1!\n";
+		std::cout << "[Shader] Warning! [" << name << "] uniform location is -1!\n";
 	else
 		HANDLE_ERROR(glUniform1f(location, f1));
 }
@@ -150,7 +150,7 @@ void Shader::SetUniform(const char* name, float f1, float f2)
 	int location = this->getUnifromLocation(name);
 
 	if (location == -1)
-		std::cout << "Warning! [" << name << "] uniform location is -1!\n";
+		std::cout << "[Shader] Warning! [" << name << "] uniform location is -1!\n";
 	else
 		HANDLE_ERROR(glUniform2f(location, f1, f2));
 }
@@ -160,7 +160,7 @@ void Shader::SetUniform(const char* name, float f1, float f2, float f3)
 	int location = this->getUnifromLocation(name);
 
 	if (location == -1)
-		std::cout << "Warning! [" << name << "] uniform location is -1!\n";
+		std::cout << "[Shader] Warning! [" << name << "] uniform location is -1!\n";
 	else
 		HANDLE_ERROR(glUniform3f(location, f1, f2, f3));
 }
@@ -170,7 +170,7 @@ void Shader::SetUniform(const char* name, const glm::vec3& vec)
 	int location = this->getUnifromLocation(name);
 
 	if (location == -1)
-		std::cout << "Warning! [" << name << "] uniform location is -1!\n";
+		std::cout << "[Shader] Warning! [" << name << "] uniform location is -1!\n";
 	else
 		HANDLE_ERROR(glUniform3f(location, vec.x, vec.y, vec.z));
 }
@@ -180,9 +180,19 @@ void Shader::SetUniform(const char* name, float f1, float f2, float f3, float f4
 	int location = this->getUnifromLocation(name);
 
 	if (location == -1)
-		std::cout << "Warning! [" << name << "] uniform location is -1!\n";
+		std::cout << "[Shader] Warning! [" << name << "] uniform location is -1!\n";
 	else
 		HANDLE_ERROR(glUniform4f(location, f1, f2, f3, f4));
+}
+
+void Shader::SetUniform(const char* name, const glm::vec4& vec)
+{
+	int location = this->getUnifromLocation(name);
+
+	if (location == -1)
+		std::cout << "[Shader] Warning! [" << name << "] uniform location is -1!\n";
+	else
+		HANDLE_ERROR(glUniform4f(location, vec.x, vec.y, vec.z, vec.w));
 }
 
 void Shader::SetUniform(const char* name, const glm::mat4& matrix) 
@@ -190,7 +200,7 @@ void Shader::SetUniform(const char* name, const glm::mat4& matrix)
 	int location = this->getUnifromLocation(name);
 
 	if (location == -1)
-		std::cout << "Warning! [" << name << "] uniform location is -1!\n";
+		std::cout << "[Shader] Warning! [" << name << "] uniform location is -1!\n";
 	else
 		HANDLE_ERROR(glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix)));
 }

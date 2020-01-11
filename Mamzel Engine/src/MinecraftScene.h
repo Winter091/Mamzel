@@ -10,9 +10,10 @@
 class MinecraftScene : public Application
 {
 private:
-	void DrawOpenGL();
-	void DrawGui();
+	void DrawOpenGL() override;
+	void DrawGui() override;
 
+private:
 	std::vector<float> m_FrameTimes;
 
 	const char* m_CurrentLightning = "Blinn-Phong";

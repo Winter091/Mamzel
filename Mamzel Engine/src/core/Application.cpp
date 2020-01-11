@@ -2,17 +2,13 @@
 
 #include <iostream>
 
-#include "../scene/Scene.h"
-#include "../util/ErrorHandling.h"
-#include "../util/Input.h"
-
 std::shared_ptr<PerspectiveCamera> Application::s_CameraRef;
 
 Application::~Application()
 {
 	m_Camera = nullptr;
 	s_CameraRef = nullptr;
-	Renderer::Free();
+	RenderData::Free();
 	TextureLibrary::Free();
 	glfwDestroyWindow(m_Window);
 }
@@ -63,12 +59,16 @@ Application::Application(unsigned int windowWidth, unsigned int windowHeight, bo
 	m_StartTime = std::chrono::high_resolution_clock::now();
 	m_LastTime = m_StartTime;
 
-	m_Camera = PerspectiveCamera::Create(windowWidth, windowHeight, 45.0f);
+	m_Camera = PerspectiveCamera::Create((float)windowWidth, (float)windowHeight, 45.0f);
 	s_CameraRef = m_Camera;
 
 	Input::SetWindow(m_Window);
 
-	Renderer::Init();
+	RenderData::Load();
+
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	ImGui::CreateContext();
 	ImGui::StyleColorsDark();

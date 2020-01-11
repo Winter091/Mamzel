@@ -13,23 +13,30 @@ MinecraftScene::MinecraftScene()
 	m_Camera->SetMoveSpeedAndMouseSens(0.008f, 0.08f);
 
 	TextureLibrary::Load("grass", "res/textures/grass.png");
-	TextureLibrary::Load("oak_planks", "res/textures/planks_oak.png");
-	TextureLibrary::Load("glass", "res/textures/glass.png");
-	TextureLibrary::Load("door_lower", "res/textures/door_wood_lower.png");
-	TextureLibrary::Load("door_upper", "res/textures/door_wood_upper.png");
-	TextureLibrary::Load("redstone_lamp", "res/textures/redstone_lamp.png");
-	TextureLibrary::Load("moon", "res/textures/moon_cut.png");
-	TextureLibrary::Load("stars", "res/textures/stars.png");
-
 	TextureLibrary::SetWrapAndFilterMode("grass", GL_REPEAT, GL_NEAREST_MIPMAP_NEAREST, GL_NEAREST);
 	TextureLibrary::SetScale("grass", 100.0f);
 
-	TextureLibrary::SetWrapAndFilterMode("stars", GL_REPEAT, GL_NEAREST_MIPMAP_NEAREST, GL_LINEAR);
-	TextureLibrary::SetScale("stars", 5.0f);	
+	TextureLibrary::Load("oak_planks", "res/textures/planks_oak.png");
+	TextureLibrary::SetWrapAndFilterMode("oak_planks", GL_REPEAT, GL_NEAREST_MIPMAP_NEAREST, GL_NEAREST);
 
-	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile("res/models/nanosuit/nanosuit.obj", aiProcess_Triangulate | aiProcess_FlipUVs);
-	std::cout << 123;
+	TextureLibrary::Load("glass", "res/textures/glass.png");
+	TextureLibrary::SetWrapAndFilterMode("glass", GL_REPEAT, GL_NEAREST_MIPMAP_NEAREST, GL_NEAREST);
+
+	TextureLibrary::Load("door_lower", "res/textures/door_wood_lower.png");
+	TextureLibrary::SetWrapAndFilterMode("door_lower", GL_REPEAT, GL_NEAREST_MIPMAP_NEAREST, GL_NEAREST);
+
+	TextureLibrary::Load("door_upper", "res/textures/door_wood_upper.png");
+	TextureLibrary::SetWrapAndFilterMode("door_upper", GL_REPEAT, GL_NEAREST_MIPMAP_NEAREST, GL_NEAREST);
+
+	TextureLibrary::Load("redstone_lamp", "res/textures/redstone_lamp.png");
+	TextureLibrary::SetWrapAndFilterMode("redstone_lamp", GL_REPEAT, GL_NEAREST_MIPMAP_NEAREST, GL_NEAREST);
+
+	TextureLibrary::Load("moon", "res/textures/moon_cut.png");
+	TextureLibrary::SetWrapAndFilterMode("moon", GL_REPEAT, GL_NEAREST_MIPMAP_NEAREST, GL_NEAREST);
+
+	TextureLibrary::Load("stars", "res/textures/stars.png");
+	TextureLibrary::SetWrapAndFilterMode("stars", GL_REPEAT, GL_NEAREST_MIPMAP_NEAREST, GL_NEAREST);
+	TextureLibrary::SetScale("stars", 5.0f);
 }
 
 MinecraftScene::~MinecraftScene()
@@ -42,14 +49,14 @@ void MinecraftScene::DrawGui()
 	ImGui::Begin("Gui");
 	ImGui::Text("Frame takes %.3f ms. (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
-	if (m_FrameTimes.size() < 200)
+	if (m_FrameTimes.size() < ImGui::GetIO().Framerate)
 		m_FrameTimes.push_back(1000.0f / ImGui::GetIO().Framerate);
 	else
 	{
 		std::rotate(m_FrameTimes.begin(), m_FrameTimes.begin() + 1, m_FrameTimes.end());
 		m_FrameTimes[m_FrameTimes.size() - 1] = 1000.0f / ImGui::GetIO().Framerate;
 	}
-	ImGui::PlotLines("Frame Times", m_FrameTimes.data(), m_FrameTimes.size());
+	ImGui::PlotLines("Frame Times", m_FrameTimes.data(), (int)m_FrameTimes.size());
 		
 	static const char* items[] = { "Flat Color", "Phong", "Blinn-Phong" };
 	if (ImGui::BeginCombo("Lightning", m_CurrentLightning))
@@ -94,29 +101,27 @@ void MinecraftScene::DrawGui()
 
 void MinecraftScene::DrawOpenGL()
 {
-	Renderer::SetClearColor(0.0f, 0.0f, 0.0f);
-	Renderer::Clear();
+	RenderCommand::SetClearColor(0.0f, 0.0f, 0.0f);
+	RenderCommand::Clear();
 
-	glm::vec3 lamp1Position = m_Lamp1Pos;
-	glm::vec3 lamp2Position = m_Lamp2Pos;
 	glm::vec3 moonPosition(-10.0, 20.0, -100.0);
 
 	Scene scene;
 	scene.SetCamera(m_Camera);
 
-	GlobalLight sun(m_SunDirection, m_SunIntensity);
+	DirectionalLight sun(m_SunDirection, m_SunIntensity);
 	sun.SetDiffuseColor(m_SunDiffColor);
 	sun.SetSpecularColor(m_SunSpecColor);
 
-	PointLight lamp1(lamp1Position, m_Lamp1Range);
+	PointLight lamp1(m_Lamp1Pos, m_Lamp1Range);
 	lamp1.SetDiffuseColor(m_Lamp1DiffColor);
 	lamp1.SetSpecularColor(m_Lamp1SpecColor);
 
-	PointLight lamp2(lamp2Position, m_Lamp2Range);
+	PointLight lamp2(m_Lamp2Pos, m_Lamp2Range);
 	lamp2.SetDiffuseColor(m_Lamp2DiffColor);
 	lamp2.SetSpecularColor(m_Lamp2SpecColor);
 
-	scene.SetGlobalLight(sun);
+	scene.SetDirectionalLight(sun);
 	scene.AddPointLight(lamp1);
 	scene.AddPointLight(lamp2);
 
@@ -168,8 +173,8 @@ void MinecraftScene::DrawOpenGL()
 	Renderer::BeginScene(scene);
 	{	
 		// Lamps
-		Renderer::DrawCube(lamp1Position, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), TextureLibrary::Get("redstone_lamp"));
-		Renderer::DrawCube(lamp2Position, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), TextureLibrary::Get("redstone_lamp"));
+		Renderer::DrawCube(m_Lamp1Pos, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), TextureLibrary::Get("redstone_lamp"));
+		Renderer::DrawCube(m_Lamp2Pos, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), TextureLibrary::Get("redstone_lamp"));
 
 		// Moon
 		Renderer::DrawQuad(moonPosition, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(5.0f), TextureLibrary::Get("moon"));

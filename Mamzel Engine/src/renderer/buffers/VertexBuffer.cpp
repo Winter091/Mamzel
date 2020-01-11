@@ -1,5 +1,5 @@
 #include "VertexBuffer.h"
-#include "../util/ErrorHandling.h"
+#include "../../util/ErrorHandling.h"
 
 VertexBuffer::VertexBuffer()
 	:m_BufferID(-1), m_ElementCount(-1)

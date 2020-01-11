@@ -8,19 +8,20 @@ class Texture
 private:
 	unsigned int m_TextureID;
 	float m_Scale;
-	std::string m_Name;
+	std::string m_Name, m_Path;
 
 public:
 	Texture();
-	Texture(const char* path, const std::string& name = "");
+	Texture(const char* path, const char* name);
 	~Texture();
 
-	static std::shared_ptr<Texture> Create(const char* path, const std::string& name = "");
+	static std::shared_ptr<Texture> Create(const char* path, const char* name);
 
 	void SetWrapAndFilterMode(int wrapMode, int filterModeMin, int filterModeMag);
 	void SetScale(float scale);
-	inline const std::string& GetName() { return m_Name; }
 
+	inline const std::string& GetPath() const { return m_Path; }
+	inline const std::string& GetName() const { return m_Name; }
 	inline float GetScale() const { return m_Scale; }
 
 	void Bind(unsigned int slot = 0);

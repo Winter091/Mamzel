@@ -4,15 +4,31 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-void PerspectiveCamera::handleMouseMovement(GLFWwindow* window)
+void PerspectiveCamera::handleMouseMovement()
 {
-	double xPos, yPos;
-	glfwGetCursorPos(window, &xPos, &yPos);
+	std::pair<double, double> mousePos = Input::GetMousePos();
 
-	float xOffset = (xPos - m_LastMouseX) * m_MouseSens;
-	float yOffset = (yPos - m_LastMouseY) * m_MouseSens;
-	m_LastMouseX = xPos;
-	m_LastMouseY = yPos;
+	if (!Input::MouseRightButtonPressed())
+	{
+		Input::SetMouseInputMode(GLFW_CURSOR_NORMAL);
+		firstFrame = true;
+		return;
+	}
+
+	if (firstFrame)
+	{
+		firstFrame = false;
+		m_LastMouseX = (float)mousePos.first;
+		m_LastMouseY = (float)mousePos.second;
+		return;
+	}
+
+	Input::SetMouseInputMode(GLFW_CURSOR_DISABLED);
+
+	float xOffset = ((float)mousePos.first - m_LastMouseX) * m_MouseSens;
+	float yOffset = ((float)mousePos.second - m_LastMouseY) * m_MouseSens;
+	m_LastMouseX = (float)mousePos.first;
+	m_LastMouseY = (float)mousePos.second;
 
 	m_Yaw += xOffset;
 	m_Pitch -= yOffset;
@@ -27,6 +43,8 @@ void PerspectiveCamera::handleMouseMovement(GLFWwindow* window)
 	front.y = sin(glm::radians(m_Pitch));
 	front.z = cos(glm::radians(m_Pitch)) * sin(glm::radians(m_Yaw));
 	m_Front = glm::normalize(front);
+
+	firstFrame = false;
 }
 
 PerspectiveCamera::PerspectiveCamera(float windowWidth, float windowHeight, float fov)
@@ -80,7 +98,7 @@ void PerspectiveCamera::SetAspectRatio(float newAspectRatio)
 
 void PerspectiveCamera::Update(float frameTime)
 {	
-	//handleMouseMovement(window);
+	handleMouseMovement();
 
 	// Mouse emulation
 	{
@@ -113,9 +131,9 @@ void PerspectiveCamera::Update(float frameTime)
 	// Mouse scroll emulation
 	{
 		if (Input::KeyPressed(GLFW_KEY_PAGE_UP))
-			m_FOV -= 0.05 * frameTime;
+			m_FOV -= 0.05f * frameTime;
 		if (Input::KeyPressed(GLFW_KEY_PAGE_DOWN))
-			m_FOV += 0.05 * frameTime;
+			m_FOV += 0.05f * frameTime;
 
 		if (m_FOV < 0.5f)
 			m_FOV = 0.5f;

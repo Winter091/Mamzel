@@ -3,7 +3,7 @@
 
 int main()
 {	
-	auto app = new MinecraftScene;
+	auto app = new SandboxApp;
 	app->Run();
 	delete app;
 }

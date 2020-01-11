@@ -16,7 +16,7 @@ void TextureLibrary::Load(const char* name, const char* path)
 	s_Textures[name] = texture;
 }
 
-std::shared_ptr<Texture> TextureLibrary::Get(const char* name)
+std::shared_ptr<Texture>& TextureLibrary::Get(const char* name)
 {
 	if (s_Textures.find(name) != s_Textures.end())
 		return s_Textures[name];

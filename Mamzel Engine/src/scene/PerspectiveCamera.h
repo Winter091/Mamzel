@@ -25,7 +25,9 @@ private:
 	float m_Speed;
 	float m_MouseSens;
 
-	void handleMouseMovement(GLFWwindow* window);
+	bool firstFrame = true;
+
+	void handleMouseMovement();
 
 public:
 

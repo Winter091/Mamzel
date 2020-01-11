@@ -15,4 +15,9 @@ public:
 	
 	static void SetWindow(const GLFWwindow* window);
 	static bool KeyPressed(int glfwKeyCode);
+	static bool MouseLeftButtonPressed();
+	static bool MouseRightButtonPressed();
+	static std::pair<double, double> GetMousePos();
+
+	static void SetMouseInputMode(int mode);
 };
