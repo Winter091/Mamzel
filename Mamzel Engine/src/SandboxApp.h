@@ -14,6 +14,8 @@ private:
 	std::shared_ptr<Shader> m_Shader;
 
 	glm::vec3 m_Lamp1Pos = glm::vec3(-7.0f, 13.0f, 11.0f);
+	glm::vec3 m_Lamp1DiffColor = glm::vec3(1.0f);
+	glm::vec3 m_Lamp1SpecColor = glm::vec3(1.0f);
 
 public:
 	SandboxApp();

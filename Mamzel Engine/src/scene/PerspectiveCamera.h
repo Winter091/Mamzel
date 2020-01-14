@@ -39,6 +39,8 @@ public:
 	void SetPosition(const glm::vec3& position);
 	void SetMoveSpeedAndMouseSens(float moveSpeed, float mouseSens);
 	void SetAspectRatio(float newAspectRatio);
+	void ChangeFOV(float difference);
+	void ChangeMoveSpeed(float difference);
 
 	void Update(float frameTime);
 

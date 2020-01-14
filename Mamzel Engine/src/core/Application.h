@@ -50,9 +50,10 @@ protected:
 
 private:
 
-	// Holding the reference to update camera's aspect ratio on window resize
 	static std::shared_ptr<PerspectiveCamera> s_CameraRef;
+
 	static void OnWindowResize(GLFWwindow* window, int width, int height);
+	static void OnMouseScroll(GLFWwindow* window, double xoffset, double yoffset);
 	
 	GLFWwindow* InitWindow(int w, int h, bool useVSync);
 

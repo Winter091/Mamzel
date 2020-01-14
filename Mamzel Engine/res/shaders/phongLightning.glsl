@@ -71,9 +71,11 @@ uniform vec3 u_CameraPos;
 
 uniform bool u_UseBlinn;
 uniform bool u_UseDirectionalLight = false;
-uniform bool u_UseTexture = false;
 
-uniform sampler2D u_TextureSampler;
+uniform bool u_UseDiffuseTexture = false;
+uniform bool u_UseSpecularTexture = false;
+uniform sampler2D u_DiffuseTextureSampler;
+uniform sampler2D u_SpecularTextureSampler;
 
 out vec4 out_color;
 
@@ -98,14 +100,14 @@ float Blinn(in vec3 lightDir, in vec3 normal, in vec3 eye)
 }
 
 void main()
-{
-	// One ambient component
-	vec4 result = vec4(u_PointLight.ambient);
-	
+{	
 	vec3 norm = normalize(vOut.normal);
 	vec3 viewDir = normalize(u_CameraPos - vOut.fragPos);
 
-	vec3 diffuse, specular;
+	vec4 totalDiffuse = vec4(vec3(0.0), 1.0), totalSpecular = vec4(vec3(0.0), 1.0);
+	vec4 diffuse, specular;
+
+	totalDiffuse += vec4(vec3(u_PointLight.ambient), 0.0);
 
 	// Point lights
 	for (int i = 0; i < u_PointLight.count; i++)
@@ -114,34 +116,43 @@ void main()
 		float attenuation = 1.0 / ((u_PointLight.constant[i]) + (u_PointLight.linear[i] * distFormLight) + (u_PointLight.quadratic[i] * distFormLight * distFormLight));
 
 		vec3 lightDir = normalize(u_PointLight.positions[i] - vOut.fragPos);
-		
-		diffuse =  Diffuse(lightDir, norm) * u_PointLight.diffuse * u_PointLight.diffuseColor[i] * attenuation;
-		
-		if (u_UseBlinn)
-			specular = Blinn(lightDir, norm, viewDir) * u_PointLight.specular * u_PointLight.specularColor[i] * attenuation;
-		else
-			specular = Phong(lightDir, norm, viewDir) * u_PointLight.specular * u_PointLight.specularColor[i] * attenuation;
 
-		result += (vec4(diffuse + specular, 1.0));
+		diffuse =  vec4(Diffuse(lightDir, norm) * u_PointLight.diffuse * u_PointLight.diffuseColor[i] * attenuation, 0.0);
+
+		if (u_UseBlinn)
+			specular = vec4(Blinn(lightDir, norm, viewDir) * u_PointLight.specular * u_PointLight.specularColor[i] * attenuation, 0.0);
+		else
+			specular = vec4(Phong(lightDir, norm, viewDir) * u_PointLight.specular * u_PointLight.specularColor[i] * attenuation, 0.0);
+
+		totalDiffuse += diffuse;
+		totalSpecular += specular;
 	}
 
 	// Directional light
 	if (u_UseDirectionalLight)
 	{
-		diffuse = Diffuse(-u_DirectionalLight.direction, norm) * u_DirectionalLight.intensity * u_DirectionalLight.diffuseColor;
+		vec3 lightDirection = normalize(u_DirectionalLight.direction);
+
+		diffuse = vec4(Diffuse(-lightDirection, norm) * u_DirectionalLight.intensity * u_DirectionalLight.diffuseColor, 0.0);
 
 		if (u_UseBlinn)
-			specular = Blinn(-u_DirectionalLight.direction, norm, viewDir) * u_DirectionalLight.intensity * u_DirectionalLight.specularColor;
+			specular = vec4(Blinn(-lightDirection, norm, viewDir) * u_DirectionalLight.intensity * u_DirectionalLight.specularColor, 0.0);
 		else
-			specular = Phong(-u_DirectionalLight.direction, norm, viewDir) * u_DirectionalLight.intensity * u_DirectionalLight.specularColor;
+			specular = vec4(Phong(-lightDirection, norm, viewDir) * u_DirectionalLight.intensity * u_DirectionalLight.specularColor, 0.0);
 
-		result += (vec4(diffuse, 1.0) + vec4(specular, 1.0));
+		totalDiffuse += diffuse;
+		totalSpecular += specular;
 	}
 	
-	result *= u_ObjectColor;
+	if (u_UseDiffuseTexture)
+		totalDiffuse *= texture(u_DiffuseTextureSampler, vOut.texCoord);
 
-	if (u_UseTexture)
-		out_color = texture(u_TextureSampler, vOut.texCoord) * result;
-	else
-		out_color = result;
+	if (u_UseSpecularTexture)
+		totalSpecular *= texture(u_SpecularTextureSampler, vOut.texCoord);
+
+	vec4 result = totalDiffuse + totalSpecular;
+	result *= u_ObjectColor;
+	result.a = 1.0;
+
+	out_color = result;
 }

@@ -22,16 +22,23 @@ void main()
 
 uniform vec4 u_ObjectColor;
 
-uniform int u_UseTexture;
-uniform sampler2D u_TextureSampler;
+uniform bool u_UseDiffuseTexture;
+uniform bool u_UseSpecularTexture = false;
+uniform sampler2D u_DiffuseTextureSampler;
+uniform sampler2D u_SpecularTextureSampler;
 in vec2 v_TexCoord;
 
 out vec4 out_color;
 
 void main()
 {
-	if (u_UseTexture == 0)
-		out_color = u_ObjectColor;
-	else
-		out_color = u_ObjectColor * texture(u_TextureSampler, v_TexCoord);
+	out_color = u_ObjectColor;
+
+	if (u_UseDiffuseTexture)
+		out_color *= texture(u_DiffuseTextureSampler, v_TexCoord);
+
+	if (u_UseSpecularTexture)
+		out_color += texture(u_SpecularTextureSampler, v_TexCoord) * 0.1;
+
+	out_color.a = 1.0;
 }

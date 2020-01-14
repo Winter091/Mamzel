@@ -1,5 +1,7 @@
 #include "Mesh.h"
+
 #include "../util/ErrorHandling.h"
+#include "../renderer/RenderData.h"
 
 void Mesh::SetupMesh()
 {
@@ -35,22 +37,31 @@ Mesh::~Mesh()
 
 void Mesh::Draw(std::shared_ptr<Shader>& shader)
 {
-	unsigned int diffuseNum = 0, specularNum = 0;
-
-	for (int i = 0; i < m_Textures.size(); i++)
+	if (m_Textures.size() == 0)
 	{
-		const std::string& name = m_Textures[i].GetName();
-
-		std::string num;
-		if (name == "texture_diffuse")
-			num = std::to_string(diffuseNum++);
-		else if (name == "texture_specular")
-			num = std::to_string(specularNum++);
-
-		m_Textures[i].Bind(i);
-		shader->SetUniform((name + num).c_str(), i);
+		shader->SetUniform("u_UseDiffuseTexture", 0);
+		shader->SetUniform("u_UseSpecularTexture", 0);
 	}
+	else
+	{
+		shader->SetUniform("u_UseDiffuseTexture", 1);
+		shader->SetUniform("u_UseSpecularTexture", 1);
+		
+		unsigned int diffuseNum = 0, specularNum = 0;
 
+		for (int i = 0; i < m_Textures.size(); i++)
+		{
+			m_Textures[i].Bind(i);
+
+			const std::string& name = m_Textures[i].GetName();
+
+			if (name == "texture_diffuse")
+				shader->SetUniform("u_DiffuseTextureSampler", i);
+			else if (name == "texture_specular")
+				shader->SetUniform("u_SpecularTextureSampler", i);
+		}
+	}
+	
 	m_VertexArray->Bind();
 	HANDLE_ERROR(glDrawElements(GL_TRIANGLES, (GLsizei)m_Indices.size(), GL_UNSIGNED_INT, nullptr));
 }

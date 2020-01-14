@@ -96,11 +96,33 @@ void PerspectiveCamera::SetAspectRatio(float newAspectRatio)
 	m_AspectRatio = newAspectRatio;
 }
 
+void PerspectiveCamera::ChangeFOV(float difference)
+{
+	m_FOV -= difference;
+
+	if (m_FOV < 0.5f)
+		m_FOV = 0.5f;
+	if (m_FOV > 150.0f)
+		m_FOV = 150.0f;
+
+	m_ProjectionMatrix = glm::perspective(glm::radians(m_FOV), m_AspectRatio, 0.01f, 500.0f);
+}
+
+void PerspectiveCamera::ChangeMoveSpeed(float difference)
+{
+	m_Speed += difference * 0.0003f;
+
+	if (m_Speed > 1.0f)
+		m_Speed = 1.0f;
+	else if (m_Speed < 0)
+		m_Speed = 0;
+}
+
 void PerspectiveCamera::Update(float frameTime)
 {	
 	handleMouseMovement();
 
-	// Mouse emulation
+	// Mouse view emulation
 	{
 		if (Input::KeyPressed(GLFW_KEY_LEFT))
 			m_Yaw -= m_MouseSens * m_FOV / 45.0f * frameTime;
@@ -128,7 +150,7 @@ void PerspectiveCamera::Update(float frameTime)
 		m_Front = glm::normalize(front);
 	}
 
-	// Mouse scroll emulation
+	// Changing FOV 
 	{
 		if (Input::KeyPressed(GLFW_KEY_PAGE_UP))
 			m_FOV -= 0.05f * frameTime;

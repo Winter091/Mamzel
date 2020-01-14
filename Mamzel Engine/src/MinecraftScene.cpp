@@ -10,7 +10,7 @@ MinecraftScene::MinecraftScene()
 	: Application(1600, 900, false)
 {
 	m_Camera->SetPosition(glm::vec3(0.0f, 0.0f, 4.0f));
-	m_Camera->SetMoveSpeedAndMouseSens(0.008f, 0.08f);
+	m_Camera->SetMoveSpeedAndMouseSens(0.004f, 0.08f);
 
 	TextureLibrary::Load("grass", "res/textures/grass.png");
 	TextureLibrary::SetWrapAndFilterMode("grass", GL_REPEAT, GL_NEAREST_MIPMAP_NEAREST, GL_NEAREST);
@@ -37,6 +37,9 @@ MinecraftScene::MinecraftScene()
 	TextureLibrary::Load("stars", "res/textures/stars.png");
 	TextureLibrary::SetWrapAndFilterMode("stars", GL_REPEAT, GL_NEAREST_MIPMAP_NEAREST, GL_NEAREST);
 	TextureLibrary::SetScale("stars", 5.0f);
+
+	m_WolfModel = Model::Create("res/models/lowpolywolf/wolf.obj");
+	//m_WolfModel = Model::Create("res/models/nanosuit/nanosuit.obj");
 }
 
 MinecraftScene::~MinecraftScene()
@@ -72,28 +75,49 @@ void MinecraftScene::DrawGui()
 		ImGui::EndCombo();
 	}
 
+	static const char* items2[] = { "Points", "Lines", "Fill" };
+	if (ImGui::BeginCombo("Draw Mode", m_CurrentDrawMode))
+	{
+		for (int n = 0; n < 3; n++)
+		{
+			bool is_selected = (m_CurrentDrawMode == items2[n]);
+			if (ImGui::Selectable(items2[n], is_selected))
+				m_CurrentDrawMode = items2[n];
+			if (is_selected)
+				ImGui::SetItemDefaultFocus();
+		}
+		ImGui::EndCombo();
+	}
+
 	if (ImGui::CollapsingHeader("Lamp1"))
 	{
-		ImGui::SliderFloat3("Position1", &m_Lamp1Pos.x, -5.0f, 5.0f);
-		ImGui::ColorEdit3("Diffuse Color1", &m_Lamp1DiffColor.x);
-		ImGui::ColorEdit3("Specular Color1", &m_Lamp1SpecColor.x);
-		ImGui::SliderFloat("Range1", &m_Lamp1Range, 5, 1000);
+		ImGui::SliderFloat3("Position##1", &m_Lamp1Pos.x, -15.0f, 15.0f);
+		ImGui::ColorEdit3("Diffuse Color##1", &m_Lamp1DiffColor.x);
+		ImGui::ColorEdit3("Specular Color##1", &m_Lamp1SpecColor.x);
+		ImGui::SliderFloat("Range##1", &m_Lamp1Range, 5, 1000);
 	}
 
 	if (ImGui::CollapsingHeader("Lamp2"))
 	{
-		ImGui::SliderFloat3("Position2", &m_Lamp2Pos.x, -5.0f, 5.0f);
-		ImGui::ColorEdit3("Diffuse Color2", &m_Lamp2DiffColor.x);
-		ImGui::ColorEdit3("Specular Color2", &m_Lamp2SpecColor.x);
-		ImGui::SliderFloat("Range2", &m_Lamp2Range, 5, 1000);
+		ImGui::SliderFloat3("Position##2", &m_Lamp2Pos.x, -15.0f, 15.0f);
+		ImGui::ColorEdit3("Diffuse Color##2", &m_Lamp2DiffColor.x);
+		ImGui::ColorEdit3("Specular Color##2", &m_Lamp2SpecColor.x);
+		ImGui::SliderFloat("Range##2", &m_Lamp2Range, 5, 1000);
 	}
 
 	if (ImGui::CollapsingHeader("Sun"))
 	{
-		ImGui::SliderFloat3("Direction3", &m_SunDirection.x, -1.0f, 1.0f);
-		ImGui::ColorEdit3("Diffuse Color3", &m_SunDiffColor.x);
-		ImGui::ColorEdit3("Specular Color3", &m_SunSpecColor.x);
-		ImGui::SliderFloat("Intensity3", &m_SunIntensity, 0.0f, 1.5f);
+		ImGui::SliderFloat3("Direction##3", &m_SunDirection.x, -1.0f, 1.0f);
+		ImGui::ColorEdit3("Diffuse Color##3", &m_SunDiffColor.x);
+		ImGui::ColorEdit3("Specular Color##3", &m_SunSpecColor.x);
+		ImGui::SliderFloat("Intensity##3", &m_SunIntensity, 0.0f, 1.5f);
+	}
+
+	if (ImGui::CollapsingHeader("Model"))
+	{
+		ImGui::SliderFloat3("Position##4", &m_ModelPos.x, -15.0f, 15.0f);
+		ImGui::SliderFloat4("Rotation##4", &m_ModelRotate.x, 0.0f, 360.0f);
+		ImGui::SliderFloat("Scale##4", &m_ModelScale, 0.001f, 1.0f);
 	}
 
 	ImGui::End();
@@ -103,6 +127,13 @@ void MinecraftScene::DrawOpenGL()
 {
 	RenderCommand::SetClearColor(0.0f, 0.0f, 0.0f);
 	RenderCommand::Clear();
+
+	if (m_CurrentDrawMode == "Points")
+		RenderCommand::SetPolygonMode(GL_POINT);
+	else if (m_CurrentDrawMode == "Lines")
+		RenderCommand::SetPolygonMode(GL_LINE);
+	else if (m_CurrentDrawMode == "Fill")
+		RenderCommand::SetPolygonMode(GL_FILL);
 
 	glm::vec3 moonPosition(-10.0, 20.0, -100.0);
 
@@ -136,36 +167,41 @@ void MinecraftScene::DrawOpenGL()
 	scene.SetLightning(curr);
 	Renderer::BeginScene(scene);
 	{
-		// Floor
-		Renderer::DrawQuad({ 0.0, -0.5, 0.0 }, { 1.0, 0.0, 0.0, 270.0 }, glm::vec3(100.0f), TextureLibrary::Get("grass"));
+		Renderer::DrawCoordinateLines();
+		
+		// Model
+		Renderer::DrawModel(m_WolfModel, m_ModelPos, m_ModelRotate, glm::vec3(m_ModelScale));
 
-		// Layer 1
+		// Floor
+		Renderer::DrawQuad(TextureLibrary::Get("grass"), { 0.0, -0.5, 0.0 }, { 1.0, 0.0, 0.0, 270.0 }, glm::vec3(100.0f));
+
+		// House Layer 1
 		for (int x = -1; x <= 1; x++)
 			for (int y = 0; y <= 2; y++)
 				if (!(x == 0 && y == 1))
-					Renderer::DrawCube({ x, y, -1.0 }, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), TextureLibrary::Get("oak_planks"));
+					Renderer::DrawCube(TextureLibrary::Get("oak_planks"), { x, y, -1.0 });
 
-		// Layer 2
+		// House Layer 2
 		for (int x = -1; x <= 1; x++)
-			Renderer::DrawCube({ x, 2.0, 0.0 }, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), TextureLibrary::Get("oak_planks"));
+			Renderer::DrawCube(TextureLibrary::Get("oak_planks"), { x, 2.0, 0.0 });
 
-		Renderer::DrawCube({ -1.0, 0.0, 0.0 }, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), TextureLibrary::Get("oak_planks"));
-		Renderer::DrawCube({  1.0, 0.0, 0.0 }, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), TextureLibrary::Get("oak_planks"));
+		Renderer::DrawCube(TextureLibrary::Get("oak_planks"), { -1.0, 0.0, 0.0 });
+		Renderer::DrawCube(TextureLibrary::Get("oak_planks"), {  1.0, 0.0, 0.0 });
 
-		// Layer 3
+		// House Layer 3
 		for (int x = -1; x <= 1; x++)
 			for (int y = 0; y <= 2; y++)
 				if (!(x == 0 && y == 1) && !(x == 0 && y == 0))
-					Renderer::DrawCube({ x, y, 1.0 }, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), TextureLibrary::Get("oak_planks"));
+					Renderer::DrawCube(TextureLibrary::Get("oak_planks"), { x, y, 1.0 });
 
 		// Windows
-		Renderer::DrawCube({  0.0, 1.0, -1.0 }, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), TextureLibrary::Get("glass"));
-		Renderer::DrawCube({ -1.0, 1.0,  0.0 }, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), TextureLibrary::Get("glass"));
-		Renderer::DrawCube({  1.0, 1.0,  0.0 }, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), TextureLibrary::Get("glass"));
+		Renderer::DrawCube(TextureLibrary::Get("glass"), { 0.0, 1.0, -1.0 });
+		Renderer::DrawCube(TextureLibrary::Get("glass"), { -1.0, 1.0, 0.0 });
+		Renderer::DrawCube(TextureLibrary::Get("glass"), {  1.0, 1.0,  0.0 });
 
 		// Door
-		Renderer::DrawQuad({ 0.0, 1.0,  1.5 }, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), TextureLibrary::Get("door_upper"));
-		Renderer::DrawQuad({ 0.0, 0.0,  1.5 }, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), TextureLibrary::Get("door_lower"));
+		Renderer::DrawQuad(TextureLibrary::Get("door_upper"), { 0.0, 1.0,  1.5 });
+		Renderer::DrawQuad(TextureLibrary::Get("door_lower"), { 0.0, 0.0,  1.5 });
 	}
 	Renderer::EndScene();
 
@@ -173,14 +209,14 @@ void MinecraftScene::DrawOpenGL()
 	Renderer::BeginScene(scene);
 	{	
 		// Lamps
-		Renderer::DrawCube(m_Lamp1Pos, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), TextureLibrary::Get("redstone_lamp"));
-		Renderer::DrawCube(m_Lamp2Pos, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), TextureLibrary::Get("redstone_lamp"));
+		Renderer::DrawCube(TextureLibrary::Get("redstone_lamp"), m_Lamp1Pos);
+		Renderer::DrawCube(TextureLibrary::Get("redstone_lamp"), m_Lamp2Pos);
 
 		// Moon
-		Renderer::DrawQuad(moonPosition, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(5.0f), TextureLibrary::Get("moon"));
+		Renderer::DrawQuad(TextureLibrary::Get("moon"), moonPosition, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(5.0f));
 
 		// Stars
-		Renderer::DrawQuad({ 0.0f, 20.0f, -105.0f }, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(300.0f), TextureLibrary::Get("stars"));
+		Renderer::DrawQuad(TextureLibrary::Get("stars"), { 0.0f, 20.0f, -105.0f }, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(300.0f));
 	}
 	Renderer::EndScene();
 }

@@ -57,7 +57,6 @@
     <None Include="res\shaders\fun\hsbSpinningCircle.frag" />
     <None Include="res\shaders\fun\hsbSpinningActualCircle.frag" />
     <None Include="res\shaders\fun\mandelbrotSet.frag" />
-    <None Include="res\shaders\modelShader.glsl" />
     <None Include="res\shaders\phongLightning.glsl" />
     <None Include="res\shaders\fun\simple.frag" />
     <None Include="res\shaders\fun\simple.vert" />

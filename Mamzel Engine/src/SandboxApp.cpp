@@ -25,7 +25,12 @@ void SandboxApp::DrawGui()
 {
 	ImGui::Begin("Gui");
 	ImGui::Text("Frame takes %.3f ms. (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-	ImGui::SliderFloat3("Position1", &m_Lamp1Pos.x, -15.0f, 15.0f);
+	if (ImGui::CollapsingHeader("Lamp1"))
+	{
+		ImGui::SliderFloat3("Position1", &m_Lamp1Pos.x, -15.0f, 15.0f);
+		ImGui::ColorEdit3("Diffuse Color1", &m_Lamp1DiffColor.x);
+		ImGui::ColorEdit3("Specular Color1", &m_Lamp1SpecColor.x);
+	}
 	ImGui::End();
 }
 
@@ -40,13 +45,13 @@ void SandboxApp::DrawOpenGL()
 	scene.SetCamera(m_Camera);
 	scene.AddPointLight(lamp1);
 
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	Renderer::BeginScene(scene);
 	{
 		Renderer::DrawCoordinateLines();
 
-		Renderer::DrawCube(m_Lamp1Pos, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), TextureLibrary::Get("redstone_lamp"));
+		//Renderer::DrawCube(m_Lamp1Pos, { 1.0, 1.0, 1.0, 0.0 }, glm::vec3(1.0f), TextureLibrary::Get("redstone_lamp"));
 
 		m_Shader->Bind();
 		glm::mat4 transform = glm::scale(glm::mat4(1.0f), glm::vec3(0.01f));
@@ -55,10 +60,10 @@ void SandboxApp::DrawOpenGL()
 
 		m_Shader->SetUniform("u_Light.position", m_Lamp1Pos);
 		m_Shader->SetUniform("u_Light.ambient", 0.1f);
-		m_Shader->SetUniform("u_Light.diffuse", 1.0f);
-		m_Shader->SetUniform("u_Light.specular", 0.5f);
-		m_Shader->SetUniform("u_Light.diffuseColor", glm::vec3(1.0f));
-		m_Shader->SetUniform("u_Light.specularColor", glm::vec3(1.0f));
+		m_Shader->SetUniform("u_Light.diffuse", 0.7f);
+		m_Shader->SetUniform("u_Light.specular", 0.2f);
+		m_Shader->SetUniform("u_Light.diffuseColor", m_Lamp1DiffColor);
+		m_Shader->SetUniform("u_Light.specularColor", m_Lamp1SpecColor);
 		m_Shader->SetUniform("u_CameraPos", m_Camera->GetPosition());
 
 		m_Model->Draw(m_Shader);

@@ -37,6 +37,7 @@ GLFWwindow* Application::InitWindow(int w, int h, bool useVSync)
 		glfwSwapInterval(0);
 
 	glfwSetWindowSizeCallback(window, &Application::OnWindowResize);
+	glfwSetScrollCallback(window, &Application::OnMouseScroll);
 
 	if (glewInit() != GLEW_OK)
 	{
@@ -51,6 +52,11 @@ void Application::OnWindowResize(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
 	s_CameraRef->SetAspectRatio((float)width / height);
+}
+
+void Application::OnMouseScroll(GLFWwindow* window, double xoffset, double yoffset)
+{
+	s_CameraRef->ChangeMoveSpeed(yoffset);
 }
 
 Application::Application(unsigned int windowWidth, unsigned int windowHeight, bool useVSync)

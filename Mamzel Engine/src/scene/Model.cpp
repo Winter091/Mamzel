@@ -106,7 +106,7 @@ std::vector<Texture> Model::LoadMaterialTextures(aiMaterial* mat, aiTextureType 
 Model::Model(const char* path)
 {
 	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
+	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals);
 
 	if (!scene)
 	{
@@ -135,6 +135,11 @@ Model::Model(const char* path)
 Model::~Model()
 {
 	m_Meshes.clear();
+}
+
+std::shared_ptr<Model> Model::Create(const char* path)
+{
+	return std::make_shared<Model>(path);
 }
 
 void Model::Draw(std::shared_ptr<Shader>& shader)

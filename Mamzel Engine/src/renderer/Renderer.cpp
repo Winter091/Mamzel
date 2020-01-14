@@ -78,9 +78,9 @@ void Renderer::SendMatrixAndTexture(const glm::mat4& transform, const glm::vec4&
 
 	if (useTexture)
 	{
-		s_CurrShader->SetUniform("u_UseTexture", (int)useTexture);
+		s_CurrShader->SetUniform("u_UseDiffuseTexture", 1);
 		s_CurrShader->SetUniform("u_TextureScale", textureScale);
-		s_CurrShader->SetUniform("u_TextureSampler", 0);
+		s_CurrShader->SetUniform("u_DiffuseTextureSampler", 0);
 	}
 }
 
@@ -120,7 +120,7 @@ void Renderer::DrawCoordinateLines()
 	glm::mat4 model =glm::scale(glm::mat4(1.0f), glm::vec3(100.0f));
 
 	RenderData::flatColorShader->SetUniform("u_MatrixMVP", s_Scene->GetCamera()->GetMatrixVP() * model);
-	RenderData::flatColorShader->SetUniform("u_UseTexture", (int)0);
+	RenderData::flatColorShader->SetUniform("u_UseDiffuseTexture", (int)0);
 
 	RenderData::flatColorShader->SetUniform("u_ObjectColor", glm::vec4(1.0f, 0.0f, 0.0f, 0.5f));
 	HANDLE_ERROR(glDrawArrays(GL_LINES, 0, 2));
@@ -155,6 +155,22 @@ void Renderer::DrawUserData(std::shared_ptr<VertexArray>& va, std::shared_ptr<Sh
 	DrawUserData(va, shader, modelMatrix);
 }
 
+void Renderer::DrawModel(std::shared_ptr<Model>& model, const glm::vec3& position, const glm::vec4& rotation, const glm::vec3 scale, const glm::vec4& color)
+{
+	DrawModel(model, glm::translate(glm::mat4(1.0), position) * glm::rotate(glm::mat4(1.0), glm::radians(rotation.w), glm::vec3(rotation.x, rotation.y, rotation.z)) * glm::scale(glm::mat4(1.0), scale));
+}
+
+void Renderer::DrawModel(std::shared_ptr<Model>& model, const glm::mat4& transform)
+{
+	SendMatrixAndTexture(transform, glm::vec4(1.0f));
+	s_CurrShader->SetUniform("u_TextureScale", 1.0f);
+
+	model->Draw(s_CurrShader);
+
+	// Only models use spec. texture
+	s_CurrShader->SetUniform("u_UseSpecularTexture", 0);
+}
+
 // Triangles =========================================================================================================================================
 
 // Non-textured
@@ -172,12 +188,12 @@ void Renderer::DrawTriangle(const glm::mat4& transform, const glm::vec4& color)
 }
 
 // Textured
-void Renderer::DrawTriangle(const glm::vec3& position, const glm::vec4& rotation, const glm::vec3& scale, std::shared_ptr<Texture>& texture, const glm::vec4& color)
+void Renderer::DrawTriangle(std::shared_ptr<Texture>& texture, const glm::vec3& position, const glm::vec4& rotation, const glm::vec3& scale, const glm::vec4& color)
 {
-	DrawTriangle(glm::translate(glm::mat4(1.0), position) * glm::rotate(glm::mat4(1.0), glm::radians(rotation.w), glm::vec3(rotation.x, rotation.y, rotation.z)) * glm::scale(glm::mat4(1.0), scale), texture, color);
+	DrawTriangle(texture, glm::translate(glm::mat4(1.0), position) * glm::rotate(glm::mat4(1.0), glm::radians(rotation.w), glm::vec3(rotation.x, rotation.y, rotation.z)) * glm::scale(glm::mat4(1.0), scale), color);
 }
 
-void Renderer::DrawTriangle(const glm::mat4& transform, std::shared_ptr<Texture>& texture, const glm::vec4& color)
+void Renderer::DrawTriangle(std::shared_ptr<Texture>& texture, const glm::mat4& transform, const glm::vec4& color)
 {
 	texture->Bind();
 	SendMatrixAndTexture(transform, color, true, texture->GetScale());
@@ -204,12 +220,12 @@ void Renderer::DrawQuad(const glm::mat4& transform, const glm::vec4& color)
 }
 
 // Textured
-void Renderer::DrawQuad(const glm::vec3& position, const glm::vec4& rotation, const glm::vec3& scale, std::shared_ptr<Texture>& texture, const glm::vec4& color)
+void Renderer::DrawQuad(std::shared_ptr<Texture>& texture, const glm::vec3& position, const glm::vec4& rotation, const glm::vec3& scale, const glm::vec4& color)
 {
-	DrawQuad(glm::translate(glm::mat4(1.0), position) * glm::rotate(glm::mat4(1.0), glm::radians(rotation.w), glm::vec3(rotation.x, rotation.y, rotation.z)) * glm::scale(glm::mat4(1.0), scale), texture, color);
+	DrawQuad(texture, glm::translate(glm::mat4(1.0), position) * glm::rotate(glm::mat4(1.0), glm::radians(rotation.w), glm::vec3(rotation.x, rotation.y, rotation.z)) * glm::scale(glm::mat4(1.0), scale), color);
 }
 
-void Renderer::DrawQuad(const glm::mat4& transform, std::shared_ptr<Texture>& texture, const glm::vec4& color)
+void Renderer::DrawQuad(std::shared_ptr<Texture>& texture, const glm::mat4& transform, const glm::vec4& color)
 {
 	texture->Bind();
 	SendMatrixAndTexture(transform, color, true, texture->GetScale());
@@ -235,12 +251,12 @@ void Renderer::DrawCube(const glm::mat4& transform, const glm::vec4& color)
 }
 
 // Textured
-void Renderer::DrawCube(const glm::vec3& position, const glm::vec4& rotation, const glm::vec3& scale, std::shared_ptr<Texture>& texture, const glm::vec4& color)
+void Renderer::DrawCube(std::shared_ptr<Texture>& texture, const glm::vec3& position, const glm::vec4& rotation, const glm::vec3& scale, const glm::vec4& color)
 {
-	DrawCube(glm::translate(glm::mat4(1.0), position) * glm::rotate(glm::mat4(1.0), glm::radians(rotation.w), glm::vec3(rotation.x, rotation.y, rotation.z)) * glm::scale(glm::mat4(1.0), scale), texture, color);
+	DrawCube(texture, glm::translate(glm::mat4(1.0), position) * glm::rotate(glm::mat4(1.0), glm::radians(rotation.w), glm::vec3(rotation.x, rotation.y, rotation.z)) * glm::scale(glm::mat4(1.0), scale), color);
 }
 
-void Renderer::DrawCube(const glm::mat4& transform, std::shared_ptr<Texture>& texture, const glm::vec4& color)
+void Renderer::DrawCube(std::shared_ptr<Texture>& texture, const glm::mat4& transform, const glm::vec4& color)
 {
 	texture->Bind();
 	SendMatrixAndTexture(transform, color, true, texture->GetScale());

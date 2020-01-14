@@ -523,7 +523,6 @@
     <None Include="vendor\glm\gtx\wrap.inl">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="res\shaders\modelShader.glsl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\renderer\Shader.h">

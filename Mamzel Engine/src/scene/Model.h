@@ -6,6 +6,8 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+#include <memory>
+
 class Model
 {
 private:
@@ -21,6 +23,8 @@ public:
 	Model() = delete;
 	Model(const char* path);
 	~Model();
+
+	static std::shared_ptr<Model> Create(const char* path);
 
 	void Draw(std::shared_ptr<Shader>& shader);
 };
